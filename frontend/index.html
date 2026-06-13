@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload Presentation</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Presentation Manager</h1>
+        <nav>
+          <a href="index.html" class="active">Upload</a>
+          <a href="view.html">View</a>
+        </nav>
+      </header>
+
+      <section class="card">
+        <h2>Upload PowerPoint</h2>
+        <p>
+          Choose a .pptx file and upload it. The server keeps a single current
+          presentation and replaces the previous file on each upload.
+        </p>
+
+        <form id="upload-form" class="upload-form">
+          <label class="file-input" for="file-input">
+            <span>Presentation file (.pptx, max 50 MB)</span>
+            <input
+              id="file-input"
+              name="file"
+              type="file"
+              accept=".pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation"
+              required
+            />
+          </label>
+
+          <button id="upload-button" type="submit">Upload</button>
+          <div id="status" class="status" aria-live="polite"></div>
+        </form>
+      </section>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/upload.js"></script>
+  </body>
+</html>

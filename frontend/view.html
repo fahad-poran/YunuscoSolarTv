@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>View Presentation</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="view-chrome">
+        <h1>Presentation Manager</h1>
+        <nav>
+          <a href="index.html">Upload</a>
+          <a href="view.html" class="active">View</a>
+        </nav>
+      </header>
+
+      <section class="card view-card">
+        <h2 class="view-chrome">View Presentation</h2>
+        <p class="view-chrome">
+          Slides are rendered by PowerPoint on the server for accurate fonts and
+          layout. Playback auto-advances every 5 seconds.
+        </p>
+
+        <div class="viewer-toolbar view-chrome">
+          <div class="viewer-controls">
+            <button id="prev-slide" type="button" aria-label="Previous slide">&#9664;</button>
+            <span id="slide-counter" class="slide-counter"></span>
+            <button id="next-slide" type="button" aria-label="Next slide">&#9654;</button>
+          </div>
+
+          <div class="viewer-actions">
+            <button id="autoplay-toggle" type="button" class="secondary-button active">Pause</button>
+            <button id="fullscreen-btn" type="button" class="secondary-button">Fullscreen</button>
+          </div>
+        </div>
+
+        <div id="slideshow-player" class="slideshow-player">
+          <div id="viewer-overlay" class="viewer-overlay">Loading presentation...</div>
+          <img id="slide-image" alt="Current slide" hidden />
+        </div>
+
+        <div id="status" class="status view-chrome" aria-live="polite"></div>
+        <div id="meta" class="meta view-chrome"></div>
+      </section>
+    </div>
+
+    <button id="exit-fullscreen-btn" type="button" class="exit-fullscreen-btn" hidden>
+      Exit fullscreen
+    </button>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/view.js"></script>
+  </body>
+</html>
