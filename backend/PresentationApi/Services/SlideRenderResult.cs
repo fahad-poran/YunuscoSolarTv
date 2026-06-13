@@ -8,9 +8,19 @@ public sealed class SlideRenderResult
 
     public string? ErrorMessage { get; init; }
 
+    public IReadOnlyDictionary<string, string?> ErrorDetails { get; init; } =
+        new Dictionary<string, string?>();
+
     public static SlideRenderResult Succeeded(IReadOnlyList<string> slideFileNames) =>
         new() { Success = true, SlideFileNames = slideFileNames };
 
-    public static SlideRenderResult Failed(string errorMessage) =>
-        new() { Success = false, ErrorMessage = errorMessage };
+    public static SlideRenderResult Failed(
+        string errorMessage,
+        IReadOnlyDictionary<string, string?>? errorDetails = null) =>
+        new()
+        {
+            Success = false,
+            ErrorMessage = errorMessage,
+            ErrorDetails = errorDetails ?? new Dictionary<string, string?>()
+        };
 }

@@ -25,4 +25,8 @@ public class PresentationViewResponse
     public int SlideCount { get; set; }
 
     public List<SlideInfo> Slides { get; set; } = [];
+
+    public string? RenderWarning { get; set; }
+
+    public IReadOnlyDictionary<string, string?>? RenderDiagnostics { get; set; }
 }

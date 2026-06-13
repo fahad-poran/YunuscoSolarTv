@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using System.Security.Principal;
 using Microsoft.Extensions.Options;
 using PresentationApi.Options;
 
@@ -68,31 +69,46 @@ public sealed class PowerPointSlideRenderService : ISlideRenderService
 
         dynamic? application = null;
         dynamic? presentation = null;
+        var stage = "initializing";
 
         try
         {
+            stage = "locating PowerPoint COM registration";
             var powerPointType = Type.GetTypeFromProgID("PowerPoint.Application");
             if (powerPointType is null)
             {
-                return SlideRenderResult.Failed("Microsoft PowerPoint is not installed on this machine.");
+                return Failure(
+                    "Microsoft PowerPoint is not installed or is not registered for COM automation.",
+                    pptxPath,
+                    slidesDirectory,
+                    stage);
             }
 
+            stage = "creating PowerPoint.Application COM instance";
             application = Activator.CreateInstance(powerPointType)!;
+
+            stage = "configuring PowerPoint application";
             ConfigurePowerPointApplication(application);
 
             var absolutePptxPath = Path.GetFullPath(pptxPath);
 
+            stage = "opening presentation";
             presentation = application.Presentations.Open(
                 absolutePptxPath,
                 0,  // msoFalse: read-write (Export fails when opened read-only)
                 0,  // msoFalse: untitled
                 -1); // msoTrue: with window
 
+            stage = "exporting slides";
             List<string> normalizedNames = ExportSlides(presentation, slidesDirectory);
 
             if (normalizedNames.Count == 0)
             {
-                return SlideRenderResult.Failed("PowerPoint did not export any slide images.");
+                return Failure(
+                    "PowerPoint did not export any slide images.",
+                    pptxPath,
+                    slidesDirectory,
+                    stage);
             }
 
             var exportedCount = normalizedNames.Count;
@@ -102,12 +118,22 @@ public sealed class PowerPointSlideRenderService : ISlideRenderService
         catch (COMException ex)
         {
             _logger.LogError(ex, "PowerPoint COM export failed for {Path}", pptxPath);
-            return SlideRenderResult.Failed("PowerPoint could not export slides. Ensure PowerPoint is installed and licensed.");
+            return Failure(
+                "PowerPoint could not export slides. Ensure PowerPoint is installed, activated, and available to the server account.",
+                pptxPath,
+                slidesDirectory,
+                stage,
+                ex);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unexpected slide export failure for {Path}", pptxPath);
-            return SlideRenderResult.Failed("Slide export failed unexpectedly.");
+            return Failure(
+                "Slide export failed unexpectedly.",
+                pptxPath,
+                slidesDirectory,
+                stage,
+                ex);
         }
         finally
         {
@@ -165,6 +191,64 @@ public sealed class PowerPointSlideRenderService : ISlideRenderService
         }
 
         return normalizedNames;
+    }
+
+    private SlideRenderResult Failure(
+        string message,
+        string pptxPath,
+        string slidesDirectory,
+        string stage,
+        Exception? exception = null)
+    {
+        return SlideRenderResult.Failed(
+            message,
+            BuildDiagnostics(pptxPath, slidesDirectory, stage, exception));
+    }
+
+    private IReadOnlyDictionary<string, string?> BuildDiagnostics(
+        string pptxPath,
+        string slidesDirectory,
+        string stage,
+        Exception? exception)
+    {
+        var details = new Dictionary<string, string?>
+        {
+            ["stage"] = stage,
+            ["pptxPath"] = SafeFullPath(pptxPath),
+            ["pptxExists"] = File.Exists(pptxPath).ToString(),
+            ["pptxSizeBytes"] = File.Exists(pptxPath) ? new FileInfo(pptxPath).Length.ToString() : null,
+            ["slidesDirectory"] = SafeFullPath(slidesDirectory),
+            ["slidesDirectoryExists"] = Directory.Exists(slidesDirectory).ToString(),
+            ["processArchitecture"] = RuntimeInformation.ProcessArchitecture.ToString(),
+            ["osArchitecture"] = RuntimeInformation.OSArchitecture.ToString(),
+            ["osDescription"] = RuntimeInformation.OSDescription,
+            ["currentUser"] = WindowsIdentity.GetCurrent().Name,
+            ["userInteractive"] = Environment.UserInteractive.ToString()
+        };
+
+        if (exception is not null)
+        {
+            details["exceptionType"] = exception.GetType().FullName;
+            details["exceptionMessage"] = exception.Message;
+            details["exceptionHResult"] = $"0x{exception.HResult:X8}";
+            details["innerExceptionType"] = exception.InnerException?.GetType().FullName;
+            details["innerExceptionMessage"] = exception.InnerException?.Message;
+            details["stackTrace"] = exception.StackTrace;
+        }
+
+        return details;
+    }
+
+    private static string SafeFullPath(string path)
+    {
+        try
+        {
+            return Path.GetFullPath(path);
+        }
+        catch
+        {
+            return path;
+        }
     }
 
     private void ConfigurePowerPointApplication(dynamic application)

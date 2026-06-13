@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using PresentationApi.Models;
 using PresentationApi.Options;
 using PresentationApi.Services;
+using System.Text.Json;
 
 namespace PresentationApi.Controllers;
 
@@ -81,6 +82,8 @@ public class PresentationController : ControllerBase
             ResolveSlidesDirectory(),
             cancellationToken);
 
+        await SaveRenderDiagnosticsAsync(renderResult, cancellationToken);
+
         var fileInfo = new FileInfo(storagePath);
 
         return Ok(new UploadResponse
@@ -91,7 +94,8 @@ public class PresentationController : ControllerBase
             UploadedAtUtc = fileInfo.LastWriteTimeUtc,
             SlideCount = renderResult.Success ? renderResult.SlideFileNames.Count : 0,
             SlidesRendered = renderResult.Success,
-            RenderWarning = renderResult.Success ? null : renderResult.ErrorMessage
+            RenderWarning = renderResult.Success ? null : renderResult.ErrorMessage,
+            RenderDiagnostics = renderResult.Success ? null : renderResult.ErrorDetails
         });
     }
 
@@ -112,6 +116,7 @@ public class PresentationController : ControllerBase
             : $"https://view.officeapps.live.com/op/embed.aspx?src={Uri.EscapeDataString(fileUrl)}";
 
         var slides = GetSlideInfos();
+        var renderDiagnostics = ReadRenderDiagnostics();
 
         return Ok(new PresentationViewResponse
         {
@@ -123,7 +128,9 @@ public class PresentationController : ControllerBase
             OfficeViewerUrl = officeViewerUrl,
             SlidesAvailable = slides.Count > 0,
             SlideCount = slides.Count,
-            Slides = slides
+            Slides = slides,
+            RenderWarning = renderDiagnostics?.Warning,
+            RenderDiagnostics = renderDiagnostics?.Diagnostics
         });
     }
 
@@ -224,5 +231,95 @@ public class PresentationController : ControllerBase
         }
 
         return $"{_options.PublicBaseUrl.TrimEnd('/')}/{relativePath.TrimStart('/')}";
+    }
+
+    private string ResolveRenderDiagnosticsPath()
+    {
+        var storagePath = ResolveStoragePath();
+        var directory = Path.GetDirectoryName(storagePath)!;
+        return Path.Combine(directory, "render-error.json");
+    }
+
+    private async Task SaveRenderDiagnosticsAsync(
+        SlideRenderResult renderResult,
+        CancellationToken cancellationToken)
+    {
+        var diagnosticsPath = ResolveRenderDiagnosticsPath();
+
+        if (renderResult.Success)
+        {
+            if (System.IO.File.Exists(diagnosticsPath))
+            {
+                System.IO.File.Delete(diagnosticsPath);
+            }
+
+            return;
+        }
+
+        var snapshot = new RenderDiagnosticsSnapshot
+        {
+            Warning = renderResult.ErrorMessage,
+            Diagnostics = renderResult.ErrorDetails,
+            CapturedAtUtc = DateTimeOffset.UtcNow
+        };
+
+        var directory = Path.GetDirectoryName(diagnosticsPath)!;
+        Directory.CreateDirectory(directory);
+
+        await using var stream = new FileStream(
+            diagnosticsPath,
+            FileMode.Create,
+            FileAccess.Write,
+            FileShare.Read);
+
+        await JsonSerializer.SerializeAsync(
+            stream,
+            snapshot,
+            cancellationToken: cancellationToken);
+    }
+
+    private RenderDiagnosticsSnapshot? ReadRenderDiagnostics()
+    {
+        var diagnosticsPath = ResolveRenderDiagnosticsPath();
+        if (!System.IO.File.Exists(diagnosticsPath))
+        {
+            return null;
+        }
+
+        try
+        {
+            using var stream = new FileStream(
+                diagnosticsPath,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.ReadWrite);
+
+            return JsonSerializer.Deserialize<RenderDiagnosticsSnapshot>(stream);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Could not read render diagnostics from {Path}", diagnosticsPath);
+            return new RenderDiagnosticsSnapshot
+            {
+                Warning = "Slide export failed, but the saved diagnostic file could not be read.",
+                Diagnostics = new Dictionary<string, string?>
+                {
+                    ["diagnosticsPath"] = diagnosticsPath,
+                    ["exceptionType"] = ex.GetType().FullName,
+                    ["exceptionMessage"] = ex.Message
+                },
+                CapturedAtUtc = DateTimeOffset.UtcNow
+            };
+        }
+    }
+
+    private sealed class RenderDiagnosticsSnapshot
+    {
+        public string? Warning { get; set; }
+
+        public IReadOnlyDictionary<string, string?> Diagnostics { get; set; } =
+            new Dictionary<string, string?>();
+
+        public DateTimeOffset CapturedAtUtc { get; set; }
     }
 }

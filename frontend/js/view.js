@@ -19,6 +19,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const counterEl = document.getElementById("slide-counter");
   const statusEl = document.getElementById("status");
   const metaEl = document.getElementById("meta");
+  const diagnosticsPanel = document.getElementById("diagnostics-panel");
+  const diagnosticsOutput = document.getElementById("diagnostics-output");
 
   let playlist = [];
   let playlistIndex = 0;
@@ -37,6 +39,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     overlay.classList.remove("hidden");
     websiteSlide.classList.remove("active");
     imageSlide.classList.remove("active");
+  }
+
+  function setDiagnostics(diagnostics) {
+    if (!diagnosticsPanel || !diagnosticsOutput) {
+      return;
+    }
+
+    if (!diagnostics || Object.keys(diagnostics).length === 0) {
+      diagnosticsPanel.hidden = true;
+      diagnosticsOutput.textContent = "";
+      return;
+    }
+
+    diagnosticsPanel.hidden = false;
+    diagnosticsPanel.open = true;
+    diagnosticsOutput.textContent = Object.entries(diagnostics)
+      .map(([key, value]) => `${key}: ${value ?? ""}`)
+      .join("\n");
   }
 
   function loadWebsiteOnce() {
@@ -227,6 +247,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (!viewInfo.exists) {
         showOverlay("No presentation uploaded yet.");
         setStatus("Upload a .pptx file on the Upload page first.", "error");
+        setDiagnostics(null);
         prevBtn.disabled = true;
         nextBtn.disabled = true;
         autoplayBtn.disabled = true;
@@ -237,9 +258,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (!viewInfo.slidesAvailable || !viewInfo.slides?.length) {
         showOverlay("Slides are not ready.");
         setStatus(
-          "Re-upload the presentation. PowerPoint must be installed on the API server to export slide images.",
+          viewInfo.renderWarning ||
+            "Re-upload the presentation. PowerPoint must be installed on the API server to export slide images.",
           "error"
         );
+        setDiagnostics(viewInfo.renderDiagnostics);
         prevBtn.disabled = true;
         nextBtn.disabled = true;
         autoplayBtn.disabled = true;
@@ -263,6 +286,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       await preloadSlides(slideUrls);
 
       showPlaylistItem(0);
+      setDiagnostics(null);
       setStatus(
         `Loop: ${websiteUrl} (${websiteDisplayMs / 1000}s) → ${slideCount} slides (${slideDisplayMs / 1000}s each).`,
         "success"
@@ -279,6 +303,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (error) {
       showOverlay("Unable to display presentation.");
       setStatus(error.message || "Failed to load presentation.", "error");
+      setDiagnostics(null);
     }
   }
 

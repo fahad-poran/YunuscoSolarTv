@@ -15,4 +15,6 @@ public class UploadResponse
     public bool SlidesRendered { get; set; }
 
     public string? RenderWarning { get; set; }
+
+    public IReadOnlyDictionary<string, string?>? RenderDiagnostics { get; set; }
 }
