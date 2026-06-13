@@ -1,0 +1,9 @@
+C:\inetpub\YunuscoSolarTV\api\PresentationApi.exe
+C:\inetpub\YunuscoSolarTV\api\appsettings.Development.json
+C:\inetpub\YunuscoSolarTV\api\appsettings.json
+C:\inetpub\YunuscoSolarTV\api\PresentationApi.dll
+C:\inetpub\YunuscoSolarTV\api\PresentationApi.deps.json
+C:\inetpub\YunuscoSolarTV\api\PresentationApi.runtimeconfig.json
+C:\inetpub\YunuscoSolarTV\api\PresentationApi.pdb
+C:\inetpub\YunuscoSolarTV\api\Microsoft.AspNetCore.OpenApi.dll
+C:\inetpub\YunuscoSolarTV\api\Microsoft.OpenApi.dll

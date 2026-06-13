@@ -1,10 +1,15 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const config = window.APP_CONFIG || {};
-  const autoplayIntervalMs = config.autoplayIntervalMs || 5000;
+  const websiteUrl = config.websiteUrl || "https://solscada.tech";
+  const websiteDisplayMs = config.websiteDisplayMs || 30000;
+  const slideDisplayMs = config.autoplayIntervalMs || 5000;
   const autoFullscreen = config.autoFullscreen !== false;
 
   const player = document.getElementById("slideshow-player");
   const overlay = document.getElementById("viewer-overlay");
+  const websiteSlide = document.getElementById("website-slide");
+  const imageSlide = document.getElementById("image-slide");
+  const websiteFrame = document.getElementById("website-frame");
   const slideImage = document.getElementById("slide-image");
   const prevBtn = document.getElementById("prev-slide");
   const nextBtn = document.getElementById("next-slide");
@@ -15,10 +20,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   const statusEl = document.getElementById("status");
   const metaEl = document.getElementById("meta");
 
-  let slides = [];
-  let currentIndex = 0;
-  let autoplayTimer = null;
+  let playlist = [];
+  let playlistIndex = 0;
+  let advanceTimer = null;
   let autoplayEnabled = true;
+  let slideCount = 0;
+  let websiteLoaded = false;
 
   function setStatus(message, type) {
     statusEl.textContent = message;
@@ -28,50 +35,108 @@ document.addEventListener("DOMContentLoaded", async () => {
   function showOverlay(message) {
     overlay.textContent = message;
     overlay.classList.remove("hidden");
-    slideImage.hidden = true;
+    websiteSlide.classList.remove("active");
+    imageSlide.classList.remove("active");
+  }
+
+  function loadWebsiteOnce() {
+    if (!websiteLoaded) {
+      websiteFrame.src = websiteUrl;
+      websiteLoaded = true;
+    }
+  }
+
+  function showWebsite() {
+    loadWebsiteOnce();
+    websiteSlide.classList.add("active");
+    imageSlide.classList.remove("active");
+  }
+
+  function showSlideImage(url) {
+    websiteSlide.classList.remove("active");
+    imageSlide.classList.add("active");
+    slideImage.src = url;
   }
 
   function hideOverlay() {
     overlay.classList.add("hidden");
-    slideImage.hidden = false;
+  }
+
+  function buildPlaylist(slideUrls) {
+    playlist = [
+      {
+        type: "website",
+        url: websiteUrl,
+        durationMs: websiteDisplayMs,
+        label: "SolScada"
+      }
+    ];
+
+    slideUrls.forEach((url, index) => {
+      playlist.push({
+        type: "slide",
+        url,
+        durationMs: slideDisplayMs,
+        label: `Slide ${index + 1}`,
+        slideNumber: index + 1
+      });
+    });
   }
 
   function updateCounter() {
-    if (slides.length === 0) {
+    if (playlist.length === 0) {
       counterEl.textContent = "";
       return;
     }
 
-    counterEl.textContent = `Slide ${currentIndex + 1} of ${slides.length}`;
-  }
+    const item = playlist[playlistIndex];
+    const seconds = item.durationMs / 1000;
 
-  function showSlide(index) {
-    if (slides.length === 0) {
+    if (item.type === "website") {
+      counterEl.textContent = `${item.label} · ${seconds}s`;
       return;
     }
 
-    currentIndex = (index + slides.length) % slides.length;
-    slideImage.src = slides[currentIndex];
+    counterEl.textContent = `${item.label} of ${slideCount} · ${seconds}s`;
+  }
+
+  function showPlaylistItem(index) {
+    if (playlist.length === 0) {
+      return;
+    }
+
+    playlistIndex = (index + playlist.length) % playlist.length;
+    const item = playlist[playlistIndex];
+
+    if (item.type === "website") {
+      showWebsite();
+    } else {
+      showSlideImage(item.url);
+    }
+
+    hideOverlay();
     updateCounter();
   }
 
   function stopAutoplay() {
-    if (autoplayTimer) {
-      clearInterval(autoplayTimer);
-      autoplayTimer = null;
+    if (advanceTimer) {
+      clearTimeout(advanceTimer);
+      advanceTimer = null;
     }
   }
 
-  function startAutoplay() {
+  function scheduleNext() {
     stopAutoplay();
 
-    if (!autoplayEnabled || slides.length <= 1) {
+    if (!autoplayEnabled || playlist.length === 0) {
       return;
     }
 
-    autoplayTimer = setInterval(() => {
-      showSlide(currentIndex + 1);
-    }, autoplayIntervalMs);
+    const item = playlist[playlistIndex];
+    advanceTimer = setTimeout(() => {
+      showPlaylistItem(playlistIndex + 1);
+      scheduleNext();
+    }, item.durationMs);
   }
 
   function setAutoplay(enabled) {
@@ -80,16 +145,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     autoplayBtn.classList.toggle("active", enabled);
 
     if (enabled) {
-      startAutoplay();
+      scheduleNext();
     } else {
       stopAutoplay();
     }
   }
 
-  function restartAutoplayTimer() {
-    if (autoplayEnabled) {
-      startAutoplay();
-    }
+  function goToItem(index) {
+    showPlaylistItem(index);
+    scheduleNext();
   }
 
   async function enterFullscreen() {
@@ -114,13 +178,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   prevBtn.addEventListener("click", () => {
-    showSlide(currentIndex - 1);
-    restartAutoplayTimer();
+    goToItem(playlistIndex - 1);
   });
 
   nextBtn.addEventListener("click", () => {
-    showSlide(currentIndex + 1);
-    restartAutoplayTimer();
+    goToItem(playlistIndex + 1);
   });
 
   autoplayBtn.addEventListener("click", () => {
@@ -130,7 +192,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   fullscreenBtn.addEventListener("click", async () => {
     try {
       await enterFullscreen();
-    } catch (error) {
+    } catch {
       setStatus("Fullscreen is not supported in this browser.", "error");
     }
   });
@@ -140,6 +202,20 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   document.addEventListener("fullscreenchange", handleFullscreenChange);
+
+  async function preloadSlides(slideUrls) {
+    await Promise.all(
+      slideUrls.map(
+        (url) =>
+          new Promise((resolve, reject) => {
+            const image = new Image();
+            image.onload = resolve;
+            image.onerror = () => reject(new Error(`Failed to load slide: ${url}`));
+            image.src = url;
+          })
+      )
+    );
+  }
 
   async function init() {
     showOverlay("Loading presentation...");
@@ -171,31 +247,33 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
 
-      slides = viewInfo.slides.map((slide) => slide.url);
+      const slideUrls = viewInfo.slides.map((slide) => slide.url);
+      slideCount = slideUrls.length;
+      buildPlaylist(slideUrls);
+
       const sizeMb = (viewInfo.fileSizeBytes / (1024 * 1024)).toFixed(2);
       const modified = viewInfo.lastModifiedUtc
         ? new Date(viewInfo.lastModifiedUtc).toLocaleString()
         : "unknown";
 
-      metaEl.textContent = `${viewInfo.fileName} · ${viewInfo.slideCount} slides · ${sizeMb} MB · updated ${modified}`;
+      metaEl.textContent =
+        `${viewInfo.fileName} · ${slideCount} slides · ${sizeMb} MB · updated ${modified} · ` +
+        `cycle: SolScada ${websiteDisplayMs / 1000}s → slides ${slideDisplayMs / 1000}s each`;
 
-      await new Promise((resolve, reject) => {
-        const image = new Image();
-        image.onload = resolve;
-        image.onerror = () => reject(new Error("Failed to load the first slide image."));
-        image.src = slides[0];
-      });
+      await preloadSlides(slideUrls);
 
-      showSlide(0);
-      hideOverlay();
-      setStatus(`Autoplay every ${autoplayIntervalMs / 1000} seconds.`, "success");
+      showPlaylistItem(0);
+      setStatus(
+        `Loop: ${websiteUrl} (${websiteDisplayMs / 1000}s) → ${slideCount} slides (${slideDisplayMs / 1000}s each).`,
+        "success"
+      );
       setAutoplay(true);
 
       if (autoFullscreen) {
         try {
           await enterFullscreen();
         } catch {
-          // Fullscreen requires a user gesture in some browsers.
+          // Fullscreen may require a user gesture in some browsers.
         }
       }
     } catch (error) {

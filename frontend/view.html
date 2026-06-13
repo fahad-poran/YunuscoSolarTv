@@ -19,15 +19,15 @@
       <section class="card view-card">
         <h2 class="view-chrome">View Presentation</h2>
         <p class="view-chrome">
-          Slides are rendered by PowerPoint on the server for accurate fonts and
-          layout. Playback auto-advances every 5 seconds.
+          Playback cycle: <strong>SolScada dashboard</strong> for 30 seconds, then
+          each PowerPoint slide for 5 seconds, then repeats.
         </p>
 
         <div class="viewer-toolbar view-chrome">
           <div class="viewer-controls">
-            <button id="prev-slide" type="button" aria-label="Previous slide">&#9664;</button>
+            <button id="prev-slide" type="button" aria-label="Previous item">&#9664;</button>
             <span id="slide-counter" class="slide-counter"></span>
-            <button id="next-slide" type="button" aria-label="Next slide">&#9654;</button>
+            <button id="next-slide" type="button" aria-label="Next item">&#9654;</button>
           </div>
 
           <div class="viewer-actions">
@@ -38,7 +38,18 @@
 
         <div id="slideshow-player" class="slideshow-player">
           <div id="viewer-overlay" class="viewer-overlay">Loading presentation...</div>
-          <img id="slide-image" alt="Current slide" hidden />
+
+          <div id="website-slide" class="slideshow-item">
+            <iframe
+              id="website-frame"
+              title="SolScada Dashboard"
+              allowfullscreen
+            ></iframe>
+          </div>
+
+          <div id="image-slide" class="slideshow-item">
+            <img id="slide-image" alt="Current slide" />
+          </div>
         </div>
 
         <div id="status" class="status view-chrome" aria-live="polite"></div>

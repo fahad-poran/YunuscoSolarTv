@@ -265,7 +265,9 @@ Returns a single slide image (PNG).
 | Setting | Default | Purpose |
 |---------|---------|---------|
 | `apiBaseUrl` | `http://localhost:5025` | Backend API base URL |
-| `autoplayIntervalMs` | `5000` | Milliseconds between slides |
+| `websiteUrl` | `https://solscada.tech` | Dashboard shown first in each loop |
+| `websiteDisplayMs` | `30000` | How long the website stays visible (ms) |
+| `autoplayIntervalMs` | `5000` | How long each slide stays visible (ms) |
 | `autoFullscreen` | `true` | Try to enter fullscreen when view page loads |
 
 ---
@@ -295,11 +297,11 @@ Deploy `backend/PresentationApi` to a **Windows server** with PowerPoint install
 
 | Feature | Description |
 |---------|-------------|
-| **Auto-play** | Advances to the next slide every 5 seconds (configurable) |
+| **Auto-play** | Loops: SolScada website (30s) → each slide (5s) → repeat |
 | **Pause / Play** | Toggle auto-advance |
-| **Prev / Next** | Manual navigation (resets the auto-play timer) |
-| **Fullscreen** | Shows slides only — hides header, toolbar, and metadata |
-| **Loop** | After the last slide, returns to slide 1 |
+| **Prev / Next** | Manual navigation (resets the timer for the current item) |
+| **Fullscreen** | Shows only the website or slide — hides header, toolbar, and metadata |
+| **Loop** | After the last slide, returns to SolScada website |
 
 ---
 
