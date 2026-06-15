@@ -1,0 +1,7 @@
+D:\YunuscoSolarTV\backend\PresentationApi\obj\Debug\net8.0\rpswa.dswa.cache.json
+D:\YunuscoSolarTV\backend\PresentationApi\obj\Debug\net8.0\PresentationApi.GeneratedMSBuildEditorConfig.editorconfig
+D:\YunuscoSolarTV\backend\PresentationApi\obj\Debug\net8.0\PresentationApi.AssemblyInfoInputs.cache
+D:\YunuscoSolarTV\backend\PresentationApi\obj\Debug\net8.0\PresentationApi.AssemblyInfo.cs
+D:\YunuscoSolarTV\backend\PresentationApi\obj\Debug\net8.0\PresentationApi.csproj.CoreCompileInputs.cache
+D:\YunuscoSolarTV\backend\PresentationApi\obj\Debug\net8.0\PresentationApi.MvcApplicationPartsAssemblyInfo.cache
+D:\YunuscoSolarTV\backend\PresentationApi\obj\Debug\net8.0\PresentationApi.sourcelink.json

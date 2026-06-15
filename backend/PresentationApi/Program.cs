@@ -59,16 +59,36 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+try
+{
+    var publicBaseUrl = app.Configuration["Presentation:PublicBaseUrl"];
+    app.Logger.LogInformation("Server starting. PublicBaseUrl is: {url}", publicBaseUrl ?? "NOT CONFIGURED");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Startup log failed: {ex.Message}");
+}
+
+app.UseCors("Frontend");
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
 
-app.UseCors("Frontend");
+app.MapGet("/api/health", (IWebHostEnvironment environment) => Results.Ok(new
+{
+    status = "running",
+    application = "PresentationApi",
+    environment = environment.EnvironmentName,
+    serverTimeUtc = DateTimeOffset.UtcNow
+}));
 
+// Only use HttpsRedirection if explicitly configured for HTTPS.
+// For this LAN setup on port 75, we disable it to avoid 307 redirects that break CORS.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseHttpsRedirection();
+    // app.UseHttpsRedirection(); // Disabled to prevent redirect issues on LAN HTTP setup
 }
 
 app.MapControllers();

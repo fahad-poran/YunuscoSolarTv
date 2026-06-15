@@ -1,0 +1,10 @@
+D:\YunuscoSolarTV\backend\PresentationApi\.binReleasenet10.0publish\PresentationApi.exe
+D:\YunuscoSolarTV\backend\PresentationApi\.binReleasenet10.0publish\appsettings.Development.json
+D:\YunuscoSolarTV\backend\PresentationApi\.binReleasenet10.0publish\appsettings.json
+D:\YunuscoSolarTV\backend\PresentationApi\.binReleasenet10.0publish\appsettings.Production.json
+D:\YunuscoSolarTV\backend\PresentationApi\.binReleasenet10.0publish\PresentationApi.dll
+D:\YunuscoSolarTV\backend\PresentationApi\.binReleasenet10.0publish\PresentationApi.deps.json
+D:\YunuscoSolarTV\backend\PresentationApi\.binReleasenet10.0publish\PresentationApi.runtimeconfig.json
+D:\YunuscoSolarTV\backend\PresentationApi\.binReleasenet10.0publish\PresentationApi.pdb
+D:\YunuscoSolarTV\backend\PresentationApi\.binReleasenet10.0publish\Microsoft.AspNetCore.OpenApi.dll
+D:\YunuscoSolarTV\backend\PresentationApi\.binReleasenet10.0publish\Microsoft.OpenApi.dll

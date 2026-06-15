@@ -9,6 +9,11 @@ namespace PresentationApi.Services;
 [SupportedOSPlatform("windows")]
 public sealed class PowerPointSlideRenderService : ISlideRenderService
 {
+    private const int ComAccessDeniedHResult = unchecked((int)0x80070005);
+    private const string PowerPointComCreationStage = "creating PowerPoint.Application COM instance";
+    private const string PowerPointComAccessDeniedMessage =
+        "PowerPoint COM access denied. The IIS app pool identity cannot start PowerPoint. Run the app pool under a dedicated Windows user, open PowerPoint once as that user, and grant DCOM Local Launch/Activation permission.";
+
     private readonly PresentationOptions _options;
     private readonly ILogger<PowerPointSlideRenderService> _logger;
 
@@ -84,7 +89,7 @@ public sealed class PowerPointSlideRenderService : ISlideRenderService
                     stage);
             }
 
-            stage = "creating PowerPoint.Application COM instance";
+            stage = PowerPointComCreationStage;
             application = Activator.CreateInstance(powerPointType)!;
 
             stage = "configuring PowerPoint application";
@@ -119,7 +124,7 @@ public sealed class PowerPointSlideRenderService : ISlideRenderService
         {
             _logger.LogError(ex, "PowerPoint COM export failed for {Path}", pptxPath);
             return Failure(
-                "PowerPoint could not export slides. Ensure PowerPoint is installed, activated, and available to the server account.",
+                GetFailureMessage(stage, ex),
                 pptxPath,
                 slidesDirectory,
                 stage,
@@ -129,7 +134,7 @@ public sealed class PowerPointSlideRenderService : ISlideRenderService
         {
             _logger.LogError(ex, "Unexpected slide export failure for {Path}", pptxPath);
             return Failure(
-                "Slide export failed unexpectedly.",
+                GetFailureMessage(stage, ex),
                 pptxPath,
                 slidesDirectory,
                 stage,
@@ -249,6 +254,25 @@ public sealed class PowerPointSlideRenderService : ISlideRenderService
         {
             return path;
         }
+    }
+
+    private static string GetFailureMessage(string stage, Exception exception)
+    {
+        if (IsPowerPointComAccessDenied(stage, exception))
+        {
+            return PowerPointComAccessDeniedMessage;
+        }
+
+        return exception is COMException
+            ? "PowerPoint could not export slides. Ensure PowerPoint is installed, activated, and available to the server account."
+            : "Slide export failed unexpectedly.";
+    }
+
+    private static bool IsPowerPointComAccessDenied(string stage, Exception exception)
+    {
+        return stage == PowerPointComCreationStage &&
+            exception.HResult == ComAccessDeniedHResult &&
+            (exception is UnauthorizedAccessException || exception is COMException);
     }
 
     private void ConfigurePowerPointApplication(dynamic application)

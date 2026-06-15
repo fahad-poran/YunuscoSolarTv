@@ -32,3 +32,4 @@ D:\YunuscoSolarTV\backend\PresentationApi\obj\Release\net10.0\refint\Presentatio
 D:\YunuscoSolarTV\backend\PresentationApi\obj\Release\net10.0\PresentationApi.pdb
 D:\YunuscoSolarTV\backend\PresentationApi\obj\Release\net10.0\PresentationApi.genruntimeconfig.cache
 D:\YunuscoSolarTV\backend\PresentationApi\obj\Release\net10.0\ref\PresentationApi.dll
+D:\YunuscoSolarTV\backend\PresentationApi\bin\Release\net10.0\appsettings.Production.json
