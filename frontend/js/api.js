@@ -15,6 +15,33 @@
     }
   }
 
+  async function request(path, options = {}) {
+    const url = getApiUrl(path);
+
+    try {
+      const response = await fetch(url, options);
+      if (!response.ok) {
+        throw new Error(await parseError(response));
+      }
+      return response;
+    } catch (error) {
+      if (error instanceof TypeError && error.message === "Failed to fetch") {
+        const origin = window.location.origin;
+        const healthUrl = getApiUrl("/api/health");
+        const msg =
+          `The browser could not connect to ${url}. ` +
+          `This usually means the backend is not running at ${apiBaseUrl}, the port is blocked, ` +
+          `or CORS is rejecting this frontend origin (${origin}). ` +
+          `Open ${healthUrl} directly on the server to confirm the API returns JSON, ` +
+          `then ensure ${origin} is listed in Cors:AllowedOrigins.`;
+        console.error(`[API Error] ${msg}`);
+        throw new Error(msg);
+      }
+      console.error(`[API Error] ${path}:`, error);
+      throw error;
+    }
+  }
+
   window.PresentationApi = {
     apiBaseUrl,
     getApiUrl,
@@ -23,35 +50,26 @@
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await fetch(getApiUrl("/api/presentation/upload"), {
+      const response = await request("/api/presentation/upload", {
         method: "POST",
         body: formData
       });
-
-      if (!response.ok) {
-        throw new Error(await parseError(response));
-      }
 
       return response.json();
     },
 
     async getViewInfo() {
-      const response = await fetch(getApiUrl("/api/presentation/view"));
+      const response = await request("/api/presentation/view");
+      return response.json();
+    },
 
-      if (!response.ok) {
-        throw new Error(await parseError(response));
-      }
-
+    async getHealth() {
+      const response = await request("/api/health");
       return response.json();
     },
 
     async fetchPresentationBlob() {
-      const response = await fetch(getApiUrl("/api/presentation/file"));
-
-      if (!response.ok) {
-        throw new Error(await parseError(response));
-      }
-
+      const response = await request("/api/presentation/file");
       return response.blob();
     }
   };

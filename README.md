@@ -1,375 +1,652 @@
-# YunuscoSolarTV — PowerPoint Upload & Slideshow Viewer
+# ☀️ Yunusco Solar TV
 
-A simple web app for uploading a PowerPoint (`.pptx`) file and displaying it as an auto-playing slideshow — designed for TV/kiosk-style presentation displays (e.g. solar dashboard screens).
+PowerPoint upload and slideshow viewer for TV/kiosk displays.
 
-The project has two parts:
-
-| Part | Stack | Role |
-|------|-------|------|
-| **Backend** | .NET 10 Web API | Accepts uploads, stores the file, exports slides to PNG via PowerPoint |
-| **Frontend** | HTML / CSS / JavaScript | Upload page + fullscreen slideshow viewer (deployable to Vercel) |
+This app lets an admin upload a `.pptx` file, converts each slide into PNG images on the server, and shows the slides in a fullscreen browser viewer together with the SolScada dashboard.
 
 ---
 
-## How it works
+## 📌 What This App Does
 
-```
-┌─────────────┐     upload .pptx      ┌──────────────────┐
-│   Browser   │ ───────────────────►  │  .NET Web API    │
-│  (Frontend) │                       │                  │
-│             │ ◄── slide metadata ── │  Saves pptx      │
-│             │                       │  Exports PNGs    │
-│             │ ◄── slide images ──── │  via PowerPoint  │
-└─────────────┘                       └──────────────────┘
-```
-
-1. **Upload** — User selects a `.pptx` file on the upload page. The API saves it as `Files/current.pptx` (replacing any previous file).
-2. **Export** — On upload, the API uses **Microsoft PowerPoint COM automation** to export each slide as a 1920×1080 PNG into `Files/slides/`.
-3. **View** — The view page fetches slide metadata and displays the PNGs as a slideshow with **5-second auto-advance** and **fullscreen** support.
-
-Slides are rendered server-side by PowerPoint itself, so fonts and layout match what you see in the PowerPoint desktop app.
+| Area | Description |
+| --- | --- |
+| 🖥️ Frontend | Static HTML, CSS, and JavaScript upload/view pages |
+| ⚙️ Backend | ASP.NET Core Web API |
+| 📊 PowerPoint Rendering | Uses installed Microsoft PowerPoint on Windows to export slides as PNG |
+| 📺 TV Viewer | Shows SolScada dashboard first, then uploaded slides in a loop |
+| 🌐 Hosting | Frontend can run from IIS/static hosting; backend runs on Windows/IIS |
 
 ---
 
-## Project structure
+## 🧱 Project Structure
 
-```
+```text
 YunuscoSolarTV/
 ├── backend/
-│   └── PresentationApi/          # .NET Web API
+│   └── PresentationApi/
 │       ├── Controllers/
 │       │   └── PresentationController.cs
 │       ├── Services/
-│       │   ├── PowerPointSlideRenderService.cs   # COM export
+│       │   ├── PowerPointSlideRenderService.cs
 │       │   └── ISlideRenderService.cs
-│       ├── Models/               # Request/response DTOs
-│       ├── Options/                # appsettings binding
+│       ├── Models/
+│       ├── Options/
 │       ├── Files/
-│       │   ├── current.pptx        # (created on upload)
-│       │   └── slides/             # slide-001.png, slide-002.png, ...
+│       │   ├── current.pptx
+│       │   └── slides/
 │       ├── Program.cs
-│       └── appsettings.json
+│       ├── appsettings.json
+│       └── appsettings.Production.json
 │
 └── frontend/
-    ├── index.html                  # Upload page
-    ├── view.html                   # Slideshow viewer
-    ├── css/style.css
-    ├── js/
-    │   ├── config.js               # API URL & viewer settings
-    │   ├── api.js                  # API client helpers
-    │   ├── upload.js
-    │   └── view.js
-    └── vercel.json                 # Vercel deployment config
+    ├── index.html
+    ├── view.html
+    ├── css/
+    │   └── style.css
+    └── js/
+        ├── config.js
+        ├── api.js
+        ├── upload.js
+        └── view.js
 ```
 
 ---
 
-## Prerequisites
+## 🔄 How The App Works
 
-### Backend
-- [.NET 10 SDK](https://dotnet.microsoft.com/download)
-- **Windows** (slide export uses PowerPoint COM)
-- **Microsoft PowerPoint** installed and licensed on the machine running the API
+```text
+Browser Upload Page
+        │
+        │ uploads .pptx
+        ▼
+ASP.NET Core API
+        │
+        │ saves file as Files/current.pptx
+        ▼
+PowerPoint COM Automation
+        │
+        │ exports each slide as PNG
+        ▼
+Files/slides/slide-001.png, slide-002.png, ...
+        │
+        ▼
+Browser View Page
+```
 
-### Frontend
-- Any static file server for local dev (e.g. VS Code Live Server, `npx serve`)
-- Optional: [Vercel](https://vercel.com) account for deployment
+The backend uses real Microsoft PowerPoint to render slides. This is important because PowerPoint gives better output for custom fonts, layouts, charts, and embedded objects than most browser-only PPTX viewers.
 
 ---
 
-## Quick start (local)
+## ✅ Server Requirements
 
-### 1. Start the API
+Before publishing, the Windows server should have:
+
+| Requirement | Why It Is Needed |
+| --- | --- |
+| ✅ IIS | Hosts the backend API and/or frontend |
+| ✅ ASP.NET Core Hosting Bundle | Allows IIS to run ASP.NET Core apps |
+| ✅ Matching .NET runtime | Must match the project target framework, for example `.NET 10` for `net10.0` |
+| ✅ Microsoft PowerPoint | Required to convert PPTX slides into PNG |
+| ✅ Open firewall port | Allows other devices to call the API |
+| ✅ Dedicated Windows user for PowerPoint | Avoids IIS App Pool COM permission issues |
+
+---
+
+## 🧪 Health Check
+
+The backend has a health endpoint:
+
+```text
+GET /api/health
+```
+
+Example:
+
+```text
+http://192.168.15.6:75/api/health
+```
+
+Expected response:
+
+```json
+{
+  "status": "running",
+  "application": "PresentationApi",
+  "environment": "Production",
+  "serverTimeUtc": "2026-06-15T00:00:00+00:00"
+}
+```
+
+If this URL does not work, fix the backend/server first. CORS cannot work until the API is reachable.
+
+---
+
+## 🚀 Easy Publish Guide For Junior Developers
+
+Follow these steps in order.
+
+### 1. Install The Correct .NET Hosting Bundle
+
+Check the project target framework:
+
+```xml
+<TargetFramework>net10.0</TargetFramework>
+```
+
+If the project uses `net10.0`, install the **.NET 10 ASP.NET Core Hosting Bundle** on the server.
+
+After installing, restart IIS:
 
 ```powershell
-cd backend\PresentationApi
-dotnet run
+iisreset
 ```
 
-The API listens on **http://localhost:5025** by default.
-
-### 2. Serve the frontend
-
-Open the `frontend/` folder with a static server. For example:
+Check installed runtimes:
 
 ```powershell
-cd frontend
-npx serve .
+dotnet --list-runtimes
 ```
 
-Or use VS Code **Live Server** and open `index.html`.
+You should see:
 
-### 3. Configure the frontend
-
-Edit `frontend/js/config.js`:
-
-```javascript
-window.APP_CONFIG = {
-  apiBaseUrl: "http://localhost:5025",  // your API base URL
-  autoplayIntervalMs: 5000,             // slide interval (ms)
-  autoFullscreen: true                    // attempt fullscreen on view page load
-};
+```text
+Microsoft.NETCore.App 10.x.x
+Microsoft.AspNetCore.App 10.x.x
 ```
 
-### 4. Upload and view
-
-1. Open **Upload** page → choose a `.pptx` → click **Upload**
-2. Wait for the success message (should include slide count, e.g. `5 slides rendered`)
-3. Open **View** page → slideshow auto-plays every 5 seconds
+> 💡 If the server shows `HTTP Error 500.31`, it usually means the required .NET runtime/hosting bundle is missing.
 
 ---
 
-## API reference
+### 2. Publish The Backend
 
-Base URL: `http://localhost:5025` (local) or your deployed API URL.
+Open PowerShell as **Administrator**.
 
-### `POST /api/presentation/upload`
+Go to the backend project:
 
-Upload a `.pptx` file. Replaces any existing presentation.
-
-| Item | Value |
-|------|-------|
-| Content-Type | `multipart/form-data` |
-| Field name | `file` |
-| Max size | 50 MB |
-| Allowed type | `.pptx` only |
-
-**Success (200)**
-
-```json
-{
-  "message": "Presentation uploaded successfully.",
-  "fileName": "current.pptx",
-  "fileSizeBytes": 1048576,
-  "uploadedAtUtc": "2026-06-13T10:00:00Z",
-  "slideCount": 12,
-  "slidesRendered": true,
-  "renderWarning": null
-}
+```powershell
+cd D:\YunuscoSolarTV\backend\PresentationApi
 ```
 
-**Error (400)**
+Stop IIS before publishing if files are locked:
 
-```json
-{
-  "error": "Invalid file type.",
-  "details": "Only .pptx files are allowed."
-}
+```powershell
+iisreset /stop
 ```
+
+Publish:
+
+```powershell
+dotnet publish -c Release -o C:\inetpub\YunuscoSolarTV\api
+```
+
+Start IIS again:
+
+```powershell
+iisreset /start
+```
+
+> 💡 If publish fails with `Access to the path is denied`, run PowerShell as Administrator and stop the IIS site/app pool before publishing.
 
 ---
 
-### `GET /api/presentation/view`
+### 3. Configure IIS Site Binding
 
-Returns metadata about the current presentation and slide URLs.
+In **IIS Manager**:
 
-**No file uploaded (200)**
+1. Select the API site.
+2. Click **Bindings...**
+3. Add or edit:
 
-```json
-{
-  "exists": false,
-  "fileName": null,
-  "fileSizeBytes": null,
-  "lastModifiedUtc": null,
-  "fileUrl": null,
-  "officeViewerUrl": null,
-  "slidesAvailable": false,
-  "slideCount": 0,
-  "slides": []
-}
+```text
+Type: http
+IP address: All Unassigned
+Port: 75
+Host name: empty
 ```
 
-**File exists (200)**
+Then browse on the server:
 
-```json
-{
-  "exists": true,
-  "fileName": "current.pptx",
-  "fileSizeBytes": 1048576,
-  "lastModifiedUtc": "2026-06-13T10:00:00Z",
-  "fileUrl": null,
-  "officeViewerUrl": null,
-  "slidesAvailable": true,
-  "slideCount": 12,
-  "slides": [
-    { "index": 1, "url": "http://localhost:5025/api/presentation/slides/1" },
-    { "index": 2, "url": "http://localhost:5025/api/presentation/slides/2" }
-  ]
-}
+```text
+http://localhost:75/api/health
+```
+
+Then browse from another computer:
+
+```text
+http://192.168.15.6:75/api/health
 ```
 
 ---
 
-### `GET /api/presentation/file`
+### 4. Allow Port 75 In Windows Firewall
 
-Returns the raw `.pptx` binary.
+Run PowerShell as **Administrator**:
 
-| Response | Details |
-|----------|---------|
-| 200 | `Content-Type: application/vnd.openxmlformats-officedocument.presentationml.presentation` |
-| 404 | No presentation uploaded yet |
+```powershell
+New-NetFirewallRule `
+  -DisplayName "YunuscoSolarTV API Port 75" `
+  -Direction Inbound `
+  -Protocol TCP `
+  -LocalPort 75 `
+  -Action Allow
+```
 
----
+Use this check:
 
-### `GET /api/presentation/slides/{index}`
-
-Returns a single slide image (PNG).
-
-| Parameter | Description |
-|-----------|-------------|
-| `index` | 1-based slide number |
-
-| Response | Details |
-|----------|---------|
-| 200 | `Content-Type: image/png` |
-| 404 | Slide or presentation not found |
+| Test | Meaning |
+| --- | --- |
+| `http://localhost:75/api/health` works | IIS/API is running locally |
+| `http://server-ip:75/api/health` fails | Firewall, IP binding, or network issue |
+| Both fail | IIS/API/runtime issue |
 
 ---
 
-## Configuration
+### 5. Configure CORS
 
-### Backend — `appsettings.json`
+Backend CORS is configured in:
+
+```text
+backend/PresentationApi/appsettings.json
+backend/PresentationApi/appsettings.Production.json
+```
+
+Example:
 
 ```json
 {
   "Cors": {
     "AllowedOrigins": [
-      "http://localhost:3000",
-      "http://127.0.0.1:5500",
-      "https://*.vercel.app"
+      "http://192.168.15.6:70",
+      "http://localhost:*",
+      "http://127.0.0.1:*"
     ]
-  },
-  "Presentation": {
-    "StoragePath": "Files/current.pptx",
-    "SlidesPath": "Files/slides",
-    "SlideExportWidth": 1920,
-    "SlideExportHeight": 1080,
-    "MaxFileSizeBytes": 52428800,
-    "AllowedExtensions": [ ".pptx" ],
-    "PublicBaseUrl": ""
   }
 }
 ```
 
-| Setting | Purpose |
-|---------|---------|
-| `StoragePath` | Where the uploaded `.pptx` is saved |
-| `SlidesPath` | Folder for exported PNG slides |
-| `SlideExportWidth/Height` | Resolution of exported slide images |
-| `MaxFileSizeBytes` | Upload size limit (default 50 MB) |
-| `PublicBaseUrl` | Public HTTPS URL of the API (for production slide URLs) |
-| `Cors:AllowedOrigins` | Frontend origins allowed to call the API |
+If the frontend runs on:
 
-### Frontend — `js/config.js`
+```text
+http://192.168.15.6:70
+```
 
-| Setting | Default | Purpose |
-|---------|---------|---------|
-| `apiBaseUrl` | `http://localhost:5025` | Backend API base URL |
-| `websiteUrl` | `https://solscada.tech` | Dashboard shown first in each loop |
-| `websiteDisplayMs` | `30000` | How long the website stays visible (ms) |
-| `autoplayIntervalMs` | `5000` | How long each slide stays visible (ms) |
-| `autoFullscreen` | `true` | Try to enter fullscreen when view page loads |
+then that exact origin must be listed in `Cors:AllowedOrigins`.
+
+> 💡 CORS compares origin only: protocol + IP/domain + port.  
+> Example: `http://192.168.15.6:70` and `http://192.168.15.6:75` are different origins.
 
 ---
 
-## Deployment
+### 6. Configure Frontend API URL
 
-### Backend
+Edit:
 
-Deploy `backend/PresentationApi` to a **Windows server** with PowerPoint installed (e.g. Azure App Service on Windows, IIS, or a local TV/kiosk PC).
+```text
+frontend/js/config.js
+```
 
-1. Publish the API:
-   ```powershell
-   dotnet publish -c Release -o ./publish
-   ```
-2. Set `Presentation:PublicBaseUrl` to your public API URL (e.g. `https://api.yourdomain.com`)
-3. Add your Vercel frontend domain to `Cors:AllowedOrigins`
+Set the backend URL:
 
-### Frontend (Vercel)
+```javascript
+const apiBaseUrl = isLocalhost ? "http://localhost:5025" : "http://192.168.15.6:75";
+```
 
-1. Set the Vercel project root to the `frontend/` folder
-2. Update `frontend/js/config.js` → `apiBaseUrl` to your deployed API URL
-3. Deploy — `vercel.json` is already included
+If the server IP changes, update this file.
 
 ---
 
-## Viewer features
+## 🔐 PowerPoint COM Permission Fix
 
-| Feature | Description |
-|---------|-------------|
-| **Auto-play** | Loops: SolScada website (30s) → each slide (5s) → repeat |
-| **Pause / Play** | Toggle auto-advance |
-| **Prev / Next** | Manual navigation (resets the timer for the current item) |
-| **Fullscreen** | Shows only the website or slide — hides header, toolbar, and metadata |
-| **Loop** | After the last slide, returns to SolScada website |
+This was the main upload/render issue after publishing.
+
+The upload worked, but slide rendering failed with:
+
+```text
+PowerPoint COM access denied.
+The IIS app pool identity cannot start PowerPoint.
+```
+
+### Why This Happens
+
+PowerPoint opens fine when you are logged in, but IIS does not run as your desktop user by default.
+
+IIS usually runs as:
+
+```text
+IIS AppPool\YourAppPoolName
+```
+
+That account cannot easily open desktop Office apps like PowerPoint.
+
+### Recommended Fix
+
+Run the IIS App Pool under a normal Windows user that has opened PowerPoint once.
 
 ---
 
-## Troubleshooting
+### Step-By-Step PowerPoint User Setup
 
-### Upload succeeds but no slides on View page
+#### 1. Create A Windows User
 
-- **PowerPoint must be installed** on the machine running the API
-- Re-upload the file after fixing PowerPoint — slides are generated at upload time
-- Check the upload response for `renderWarning`
+Create a user, for example:
 
-### `PowerPoint COM export failed`
+```text
+pptuser
+```
 
-Common causes on Windows:
+In **Computer Management**:
 
-| Error | Fix |
-|-------|-----|
-| `Hiding the application window is not allowed` | Fixed in current code — do not set `Application.Visible = false` |
-| `Presentation cannot be modified` | File must be opened read-write (not read-only) for export |
-| PowerPoint not installed | Install Microsoft PowerPoint on the API server |
+```text
+Local Users and Groups > Users > New User
+```
 
-Restart the API after code changes:
+Recommended options:
+
+```text
+User must change password at next logon: unchecked
+Password never expires: checked
+```
+
+---
+
+#### 2. Log In As That User
+
+Sign in to Windows Server as:
+
+```text
+.\pptuser
+```
+
+or:
+
+```text
+SERVERNAME\pptuser
+```
+
+---
+
+#### 3. Open PowerPoint Once
+
+Open Microsoft PowerPoint manually.
+
+Accept/finish any first-run screens:
+
+```text
+License agreement
+Activation/sign-in
+Privacy settings
+Welcome screen
+Default file prompts
+Protected View / Read Only prompts
+```
+
+Open a `.pptx` file once and make sure PowerPoint works normally.
+
+---
+
+#### 4. Disable Protected View For This User
+
+In PowerPoint:
+
+```text
+File > Options > Trust Center > Trust Center Settings > Protected View
+```
+
+Disable Protected View options that block local/network files.
+
+This prevents automation from getting stuck on a yellow warning bar or read-only prompt.
+
+---
+
+#### 5. Set IIS App Pool Identity
+
+In **IIS Manager**:
+
+1. Go to **Application Pools**.
+2. Select the API app pool.
+3. Click **Advanced Settings**.
+4. Find **Identity**.
+5. Select **Custom account**.
+6. Enter:
+
+```text
+.\pptuser
+```
+
+7. Enter the password.
+8. Recycle the app pool.
+
+---
+
+#### 6. Give Folder Permission
+
+Give `pptuser` permission to the API folder:
+
+```text
+C:\inetpub\YunuscoSolarTV\api
+```
+
+Required permissions:
+
+```text
+Read
+Write
+Modify
+```
+
+PowerShell example:
 
 ```powershell
-# Ctrl+C to stop, then:
+icacls "C:\inetpub\YunuscoSolarTV\api" /grant "pptuser:(OI)(CI)M"
+```
+
+---
+
+#### 7. Grant DCOM Permission If Needed
+
+If PowerPoint still says COM access denied:
+
+1. Press `Win + R`.
+2. Run:
+
+```text
+dcomcnfg
+```
+
+3. Go to:
+
+```text
+Component Services
+  Computers
+    My Computer
+      DCOM Config
+```
+
+4. Find:
+
+```text
+Microsoft PowerPoint Presentation
+```
+
+or:
+
+```text
+Microsoft PowerPoint Application
+```
+
+5. Right-click > **Properties**.
+6. Go to **Security**.
+7. Under **Launch and Activation Permissions**, choose **Customize** > **Edit**.
+8. Add `pptuser`.
+9. Allow:
+
+```text
+Local Launch
+Local Activation
+```
+
+10. Under **Access Permissions**, allow:
+
+```text
+Local Access
+```
+
+11. Recycle the IIS app pool.
+
+---
+
+## 🧯 Common Problems And Fixes
+
+| Problem | Cause | Fix |
+| --- | --- | --- |
+| `HTTP Error 500.31` | Missing .NET runtime/hosting bundle | Install matching ASP.NET Core Hosting Bundle |
+| Publish says `Access denied` | IIS is locking files or no admin permission | Stop IIS/app pool and publish as Administrator |
+| `/api/health` does not open | API not running, wrong port, firewall, or IIS binding | Check IIS binding, firewall, and runtime |
+| CORS error in browser | Frontend origin is not allowed by backend | Add frontend origin to `Cors:AllowedOrigins` |
+| Upload succeeds but slides fail | PowerPoint COM cannot start | Use `pptuser` as app pool identity and configure DCOM |
+| PowerPoint opens read-only/protected view | Office security prompt blocks automation | Disable Protected View for `pptuser` |
+| IIS says WAS/W3SVC stopped | IIS services are stopped | Start `WAS` and `W3SVC` services |
+
+---
+
+## 🛠️ Useful Commands
+
+Check installed .NET runtimes:
+
+```powershell
+dotnet --list-runtimes
+```
+
+Publish backend:
+
+```powershell
+cd D:\YunuscoSolarTV\backend\PresentationApi
+dotnet publish -c Release -o C:\inetpub\YunuscoSolarTV\api
+```
+
+Restart IIS:
+
+```powershell
+iisreset
+```
+
+Stop IIS:
+
+```powershell
+iisreset /stop
+```
+
+Start IIS:
+
+```powershell
+iisreset /start
+```
+
+Start IIS services:
+
+```powershell
+Start-Service WAS
+Start-Service W3SVC
+```
+
+Check port usage:
+
+```powershell
+netstat -ano | findstr :75
+```
+
+Allow firewall port:
+
+```powershell
+New-NetFirewallRule `
+  -DisplayName "YunuscoSolarTV API Port 75" `
+  -Direction Inbound `
+  -Protocol TCP `
+  -LocalPort 75 `
+  -Action Allow
+```
+
+---
+
+## 🧭 Recommended Publish Checklist
+
+Before saying deployment is done, verify each item:
+
+```text
+[ ] .NET Hosting Bundle installed
+[ ] IIS site created
+[ ] IIS binding uses port 75
+[ ] Windows firewall allows port 75
+[ ] Backend published successfully
+[ ] /api/health works on localhost
+[ ] /api/health works from another computer
+[ ] Frontend config.js points to correct API URL
+[ ] Backend CORS allows frontend origin
+[ ] PowerPoint installed
+[ ] pptuser created
+[ ] PowerPoint opened once as pptuser
+[ ] Protected View handled/disabled for pptuser
+[ ] IIS App Pool runs as pptuser
+[ ] pptuser has Modify permission on API folder
+[ ] Upload renders slides successfully
+```
+
+---
+
+## 🧑‍💻 Local Development
+
+Run the backend:
+
+```powershell
+cd D:\YunuscoSolarTV\backend\PresentationApi
 dotnet run
 ```
 
-### Port already in use (`address already in use`)
+Default local API:
 
-Another instance is running on port 5025:
-
-```powershell
-netstat -ano | findstr :5025
-Stop-Process -Id <PID> -Force
+```text
+http://localhost:5025
 ```
 
-### CORS errors from frontend
+Open the frontend:
 
-Add your frontend origin to `Cors:AllowedOrigins` in `appsettings.json`.
+```text
+frontend/index.html
+frontend/view.html
+```
 
-### HTTPS redirect warning in development
+For local development, `frontend/js/config.js` automatically uses:
 
-HTTPS redirection is disabled in Development mode. This warning should not appear after restarting with the latest code.
+```text
+http://localhost:5025
+```
 
----
-
-## Design decisions (AI agent build notes)
-
-This project was built with the following architectural choices:
-
-1. **Server-side slide export via PowerPoint COM** — chosen over in-browser libraries (e.g. PptxViewJS) because browser renderers cannot reliably reproduce embedded/custom fonts. PowerPoint exports pixel-accurate PNGs.
-
-2. **Single-file replace model** — only one `current.pptx` is kept at a time, simplifying TV/kiosk use cases where one presentation loops continuously.
-
-3. **Vanilla HTML/CSS/JS frontend** — no build step required; easy to deploy on Vercel as static files.
-
-4. **Image-based slideshow** — PNG slides enable simple auto-play, fullscreen, and consistent rendering across browsers and TV displays.
+when opened from `localhost` or `127.0.0.1`.
 
 ---
 
-## Tech stack summary
+## 📡 API Endpoints
 
-| Layer | Technology |
-|-------|------------|
-| API framework | ASP.NET Core 10 Web API |
-| Slide export | PowerPoint COM Interop (Windows) |
-| File storage | Local filesystem (`Files/`) |
-| Frontend | Vanilla HTML, CSS, JavaScript |
-| Frontend hosting | Vercel (static) |
-| CORS | ASP.NET Core CORS middleware |
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| `GET` | `/api/health` | Confirms backend is running |
+| `POST` | `/api/presentation/upload` | Uploads `.pptx` and exports slides |
+| `GET` | `/api/presentation/view` | Returns current presentation and slide metadata |
+| `GET` | `/api/presentation/file` | Downloads current `.pptx` |
+| `GET` | `/api/presentation/slides/{index}` | Returns one slide PNG |
+
+---
+
+## ✅ Final Notes
+
+PowerPoint automation on a server is sensitive to user identity. If upload works but slide rendering fails, the project code is usually fine. The problem is normally Windows permissions, IIS App Pool identity, Office first-run prompts, or DCOM launch permissions.
+
+The safest production setup for this app is:
+
+```text
+IIS App Pool Identity = dedicated Windows user
+PowerPoint opened once as that same user
+API folder writable by that same user
+DCOM permission granted if Windows blocks COM launch
+```

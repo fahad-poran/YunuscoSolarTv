@@ -1,72 +1,338 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>View Presentation</title>
-    <link rel="stylesheet" href="css/style.css" />
-  </head>
-  <body>
-    <div class="container">
-      <header class="view-chrome">
-        <h1>Presentation Manager</h1>
-        <nav>
-          <a href="index.html">Upload</a>
-          <a href="view.html" class="active">View</a>
-        </nav>
-      </header>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>View Presentation</title>
+        <link rel="stylesheet" href="css/style.css" />
+        <style>
+            /* Fullscreen Header Bar Styles */
+            .fs-header {
+                display: none;
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 10;
+                height: 64px;
+                background: linear-gradient(
+                    135deg,
+                    #0a1628 0%,
+                    #0d1f3c 50%,
+                    #0a1628 100%
+                );
+                border-bottom: 2px solid #1e3a5f;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 1.5rem;
+                box-shadow: 0 2px 16px rgba(0, 0, 0, 0.5);
+            }
 
-      <section class="card view-card">
-        <h2 class="view-chrome">View Presentation</h2>
-        <p class="view-chrome">
-          Playback cycle: <strong>SolScada dashboard</strong> for 30 seconds, then
-          each PowerPoint slide for 5 seconds, then repeats.
-        </p>
+            .slideshow-player:fullscreen .fs-header,
+            .slideshow-player:-webkit-full-screen .fs-header,
+            body.is-fullscreen .fs-header {
+                display: flex;
+            }
 
-        <div class="viewer-toolbar view-chrome">
-          <div class="viewer-controls">
-            <button id="prev-slide" type="button" aria-label="Previous item">&#9664;</button>
-            <span id="slide-counter" class="slide-counter"></span>
-            <button id="next-slide" type="button" aria-label="Next item">&#9654;</button>
-          </div>
+            .fs-header-left {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
 
-          <div class="viewer-actions">
-            <button id="autoplay-toggle" type="button" class="secondary-button active">Pause</button>
-            <button id="fullscreen-btn" type="button" class="secondary-button">Fullscreen</button>
-          </div>
+            #fs-logo {
+                height: 40px;
+                width: auto;
+                object-fit: contain;
+            }
+
+            .logo-placeholder {
+                width: 40px;
+                height: 40px;
+                background: linear-gradient(135deg, #3b82f6, #2563eb);
+                border-radius: 8px;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                font-size: 20px;
+                color: white;
+            }
+
+            .fs-header-company {
+                display: flex;
+                flex-direction: column;
+                line-height: 1.5;
+            }
+
+            .fs-company-name {
+                font-size: 1.15rem;
+                font-weight: 700;
+                color: #e8edf4;
+                letter-spacing: 0.02em;
+            }
+
+            .fs-company-sub {
+                font-size: 0.72rem;
+                color: #7ab3ef;
+                letter-spacing: 0.04em;
+                text-transform: uppercase;
+            }
+
+            .fs-header-right {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+                line-height: 1.2;
+            }
+
+            .fs-clock-row {
+                display: flex;
+                align-items: baseline;
+                gap: 0.3rem;
+            }
+
+            #fs-clock-time {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #e8edf4;
+                font-variant-numeric: tabular-nums;
+                letter-spacing: 0.02em;
+            }
+
+            #fs-clock-ampm {
+                font-size: 0.8rem;
+                font-weight: 600;
+                color: #7ab3ef;
+                letter-spacing: 0.06em;
+            }
+
+            #fs-clock-date {
+                font-size: 0.72rem;
+                color: #7ab3ef;
+                letter-spacing: 0.03em;
+            }
+
+            /* Push slide content below header in fullscreen */
+            .slideshow-player:fullscreen .slideshow-item,
+            .slideshow-player:-webkit-full-screen .slideshow-item,
+            body.is-fullscreen .slideshow-item {
+                top: 64px;
+            }
+
+            .slideshow-player:fullscreen .viewer-overlay,
+            .slideshow-player:-webkit-full-screen .viewer-overlay,
+            body.is-fullscreen .viewer-overlay {
+                top: 64px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <header class="view-chrome">
+                <h1>Presentation Manager</h1>
+                <nav>
+                    <a href="index.html">Upload</a>
+                    <a href="view.html" class="active">View</a>
+                </nav>
+            </header>
+
+            <section class="card view-card">
+                <h2 class="view-chrome">View Presentation</h2>
+                <p class="view-chrome">
+                    Playback cycle: <strong>SolScada dashboard</strong> for 30
+                    seconds, then each PowerPoint slide for 5 seconds, then
+                    repeats.
+                </p>
+
+                <div class="viewer-toolbar view-chrome">
+                    <div class="viewer-controls">
+                        <button
+                            id="prev-slide"
+                            type="button"
+                            aria-label="Previous item"
+                        >
+                            &#9664;
+                        </button>
+                        <span id="slide-counter" class="slide-counter"></span>
+                        <button
+                            id="next-slide"
+                            type="button"
+                            aria-label="Next item"
+                        >
+                            &#9654;
+                        </button>
+                    </div>
+
+                    <div class="viewer-actions">
+                        <button
+                            id="autoplay-toggle"
+                            type="button"
+                            class="secondary-button active"
+                        >
+                            Pause
+                        </button>
+                        <button
+                            id="fullscreen-btn"
+                            type="button"
+                            class="secondary-button"
+                        >
+                            Fullscreen
+                        </button>
+                    </div>
+                </div>
+
+                <div id="slideshow-player" class="slideshow-player">
+                    <!-- Fullscreen Header Bar -->
+                    <div id="fs-header" class="fs-header">
+                        <div class="fs-header-left">
+                            <img
+                                id="fs-logo"
+                                src="./images/logo.png"
+                                alt="Yunusco Logo"
+                                onerror="
+                                    this.style.display = 'none';
+                                    this.nextElementSibling.style.display =
+                                        'flex';
+                                "
+                            />
+                            <div class="logo-placeholder">Y</div>
+                            <div class="fs-header-company">
+                                <span class="fs-company-name"
+                                    >Yunusco BD Ltd.</span
+                                >
+                            </div>
+                        </div>
+                        <div class="fs-header-right">
+                            <div class="fs-clock-row">
+                                <span id="fs-clock-time">12:00:00</span>
+                                <span id="fs-clock-ampm">AM</span>
+                            </div>
+                            <div id="fs-clock-date">Loading...</div>
+                        </div>
+                    </div>
+
+                    <div id="viewer-overlay" class="viewer-overlay">
+                        Loading presentation...
+                    </div>
+
+                    <div id="website-slide" class="slideshow-item">
+                        <iframe
+                            id="website-frame"
+                            title="SolScada Dashboard"
+                            allowfullscreen
+                        ></iframe>
+                    </div>
+
+                    <div id="image-slide" class="slideshow-item">
+                        <img id="slide-image" alt="Current slide" />
+                    </div>
+                </div>
+
+                <div
+                    id="status"
+                    class="status view-chrome"
+                    aria-live="polite"
+                ></div>
+                <div id="meta" class="meta view-chrome"></div>
+                <details
+                    id="diagnostics-panel"
+                    class="diagnostics-panel view-chrome"
+                    hidden
+                >
+                    <summary>Slide export error details</summary>
+                    <pre id="diagnostics-output"></pre>
+                </details>
+            </section>
         </div>
 
-        <div id="slideshow-player" class="slideshow-player">
-          <div id="viewer-overlay" class="viewer-overlay">Loading presentation...</div>
+        <button
+            id="exit-fullscreen-btn"
+            type="button"
+            class="exit-fullscreen-btn"
+            hidden
+        >
+            Exit fullscreen
+        </button>
 
-          <div id="website-slide" class="slideshow-item">
-            <iframe
-              id="website-frame"
-              title="SolScada Dashboard"
-              allowfullscreen
-            ></iframe>
-          </div>
+        <script src="js/config.js"></script>
+        <script src="js/api.js"></script>
+        <script src="js/view.js"></script>
+        <script>
+            // Fullscreen header clock (Bangladesh time)
+            function updateFsClock() {
+                var bd = new Date(
+                    new Date().toLocaleString("en-US", {
+                        timeZone: "Asia/Dhaka",
+                    }),
+                );
+                var raw = bd.getHours();
+                var ampm = raw >= 12 ? "PM" : "AM";
+                var h12 = raw % 12 || 12;
+                var pad = function (n) {
+                    return String(n).padStart(2, "0");
+                };
+                var timeEl = document.getElementById("fs-clock-time");
+                var ampmEl = document.getElementById("fs-clock-ampm");
+                var dateEl = document.getElementById("fs-clock-date");
+                if (timeEl)
+                    timeEl.textContent =
+                        pad(h12) +
+                        ":" +
+                        pad(bd.getMinutes()) +
+                        ":" +
+                        pad(bd.getSeconds());
+                if (ampmEl) ampmEl.textContent = ampm;
+                var days = [
+                    "Sunday",
+                    "Monday",
+                    "Tuesday",
+                    "Wednesday",
+                    "Thursday",
+                    "Friday",
+                    "Saturday",
+                ];
+                var months = [
+                    "Jan",
+                    "Feb",
+                    "Mar",
+                    "Apr",
+                    "May",
+                    "Jun",
+                    "Jul",
+                    "Aug",
+                    "Sep",
+                    "Oct",
+                    "Nov",
+                    "Dec",
+                ];
+                if (dateEl)
+                    dateEl.textContent =
+                        days[bd.getDay()] +
+                        ", " +
+                        bd.getDate() +
+                        " " +
+                        months[bd.getMonth()] +
+                        " " +
+                        bd.getFullYear() +
+                        " · BD";
+            }
+            setInterval(updateFsClock, 1000);
+            updateFsClock();
 
-          <div id="image-slide" class="slideshow-item">
-            <img id="slide-image" alt="Current slide" />
-          </div>
-        </div>
-
-        <div id="status" class="status view-chrome" aria-live="polite"></div>
-        <div id="meta" class="meta view-chrome"></div>
-        <details id="diagnostics-panel" class="diagnostics-panel view-chrome" hidden>
-          <summary>Slide export error details</summary>
-          <pre id="diagnostics-output"></pre>
-        </details>
-      </section>
-    </div>
-
-    <button id="exit-fullscreen-btn" type="button" class="exit-fullscreen-btn" hidden>
-      Exit fullscreen
-    </button>
-
-    <script src="js/config.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/view.js"></script>
-  </body>
+            // Handle logo fallback
+            var logo = document.getElementById("fs-logo");
+            var placeholder = logo ? logo.nextElementSibling : null;
+            if (logo && logo.complete && logo.naturalWidth === 0) {
+                logo.style.display = "none";
+                if (placeholder) placeholder.style.display = "flex";
+            }
+            if (logo) {
+                logo.onerror = function () {
+                    this.style.display = "none";
+                    if (placeholder) placeholder.style.display = "flex";
+                };
+            }
+        </script>
+    </body>
 </html>
