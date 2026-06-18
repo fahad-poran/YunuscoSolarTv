@@ -77,3 +77,38 @@ C:\Users\Admin\OneDrive\Documents\Solar web Fahad vhi github\YunuscoSolarTv\back
 C:\Users\Admin\OneDrive\Documents\Solar web Fahad vhi github\YunuscoSolarTv\backend\PresentationApi\obj\Debug\net10.0\PresentationApi.pdb
 C:\Users\Admin\OneDrive\Documents\Solar web Fahad vhi github\YunuscoSolarTv\backend\PresentationApi\obj\Debug\net10.0\PresentationApi.genruntimeconfig.cache
 C:\Users\Admin\OneDrive\Documents\Solar web Fahad vhi github\YunuscoSolarTv\backend\PresentationApi\obj\Debug\net10.0\ref\PresentationApi.dll
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\bin\Debug\net10.0\appsettings.Development.json
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\bin\Debug\net10.0\appsettings.json
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\bin\Debug\net10.0\appsettings.Production.json
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\bin\Debug\net10.0\PresentationApi.staticwebassets.endpoints.json
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\bin\Debug\net10.0\PresentationApi.exe
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\bin\Debug\net10.0\PresentationApi.deps.json
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\bin\Debug\net10.0\PresentationApi.runtimeconfig.json
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\bin\Debug\net10.0\PresentationApi.dll
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\bin\Debug\net10.0\PresentationApi.pdb
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\bin\Debug\net10.0\Microsoft.AspNetCore.OpenApi.dll
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\bin\Debug\net10.0\Microsoft.OpenApi.dll
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\obj\Debug\net10.0\PresentationApi.csproj.AssemblyReference.cache
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\obj\Debug\net10.0\rpswa.dswa.cache.json
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\obj\Debug\net10.0\PresentationApi.GeneratedMSBuildEditorConfig.editorconfig
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\obj\Debug\net10.0\PresentationApi.AssemblyInfoInputs.cache
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\obj\Debug\net10.0\PresentationApi.AssemblyInfo.cs
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\obj\Debug\net10.0\PresentationApi.csproj.CoreCompileInputs.cache
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\obj\Debug\net10.0\PresentationApi.MvcApplicationPartsAssemblyInfo.cs
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\obj\Debug\net10.0\PresentationApi.MvcApplicationPartsAssemblyInfo.cache
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\obj\Debug\net10.0\PresentationApi.sourcelink.json
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\obj\Debug\net10.0\rjimswa.dswa.cache.json
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\obj\Debug\net10.0\rjsmrazor.dswa.cache.json
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\obj\Debug\net10.0\rjsmcshtml.dswa.cache.json
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\obj\Debug\net10.0\scopedcss\bundle\PresentationApi.styles.css
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\obj\Debug\net10.0\staticwebassets.build.json
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\obj\Debug\net10.0\staticwebassets.build.json.cache
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\obj\Debug\net10.0\staticwebassets.development.json
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\obj\Debug\net10.0\staticwebassets.build.endpoints.json
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\obj\Debug\net10.0\swae.build.ex.cache
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\obj\Debug\net10.0\Presenta.74B6C64A.Up2Date
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\obj\Debug\net10.0\PresentationApi.dll
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\obj\Debug\net10.0\refint\PresentationApi.dll
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\obj\Debug\net10.0\PresentationApi.pdb
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\obj\Debug\net10.0\PresentationApi.genruntimeconfig.cache
+D:\YUNUSCO Running Project\Rafid Code\YunuscoSolarTv\backend\PresentationApi\obj\Debug\net10.0\ref\PresentationApi.dll

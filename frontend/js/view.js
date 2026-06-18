@@ -9,8 +9,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   const overlay           = document.getElementById("viewer-overlay");
   const websiteSlide      = document.getElementById("website-slide");
   const imageSlide        = document.getElementById("image-slide");
+  const imageSlideNext    = document.getElementById("image-slide-next");
   const websiteFrame      = document.getElementById("website-frame");
   const slideImage        = document.getElementById("slide-image");
+  const slideImageNext    = document.getElementById("slide-image-next");
   const prevBtn           = document.getElementById("prev-slide");
   const nextBtn           = document.getElementById("next-slide");
   const autoplayBtn       = document.getElementById("autoplay-toggle");
@@ -28,6 +30,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   let autoplayEnabled = true;
   let slideCount      = 0;
   let websiteLoaded   = false;
+  let currentItem     = null;
+  let currentImageLayer = imageSlide;
+  let nextImageLayer    = imageSlideNext;
 
   // ── Progress bar ───────────────────────────────────────────────────────────
 
@@ -85,6 +90,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     overlay.classList.remove("hidden");
     websiteSlide.classList.remove("active");
     imageSlide.classList.remove("active");
+    imageSlideNext.classList.remove("active");
   }
 
   function hideOverlay() { overlay.classList.add("hidden"); }
@@ -109,16 +115,38 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!websiteLoaded) { websiteFrame.src = websiteUrl; websiteLoaded = true; }
   }
 
+  function swapImageLayers() {
+    const temp = currentImageLayer;
+    currentImageLayer = nextImageLayer;
+    nextImageLayer = temp;
+  }
+
   function showWebsite() {
     loadWebsiteOnce();
-    websiteSlide.classList.add("active");
+
+    websiteSlide.classList.remove("active");
     imageSlide.classList.remove("active");
+    imageSlideNext.classList.remove("active");
+
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      websiteSlide.classList.add("active");
+    }));
   }
 
   function showSlideImage(url) {
-    slideImage.src = url;
-    imageSlide.classList.add("active");
+    const targetLayer = nextImageLayer;
+    const targetImage = targetLayer === imageSlide ? slideImage : slideImageNext;
+
+    targetImage.src = url;
+
     websiteSlide.classList.remove("active");
+    currentImageLayer.classList.remove("active");
+    targetLayer.classList.remove("active");
+
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      targetLayer.classList.add("active");
+      swapImageLayers();
+    }));
   }
 
   // ── Playlist ───────────────────────────────────────────────────────────────
@@ -145,8 +173,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!playlist.length) return;
     playlistIndex = (index + playlist.length) % playlist.length;
     const item = playlist[playlistIndex];
-    if (item.type === "website") showWebsite();
-    else showSlideImage(item.url);
+
+    if (item.type === "website") {
+      showWebsite();
+    } else {
+      showSlideImage(item.url);
+    }
+
+    currentItem = item;
     hideOverlay();
     updateCounter();
     if (autoplayEnabled) startProgress(item.durationMs);

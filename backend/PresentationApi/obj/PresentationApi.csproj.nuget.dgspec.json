@@ -1,23 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Admin\\OneDrive\\Documents\\Solar web Fahad vhi github\\YunuscoSolarTv\\backend\\PresentationApi\\PresentationApi.csproj": {}
+    "D:\\YUNUSCO Running Project\\Rafid Code\\YunuscoSolarTv\\backend\\PresentationApi\\PresentationApi.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Admin\\OneDrive\\Documents\\Solar web Fahad vhi github\\YunuscoSolarTv\\backend\\PresentationApi\\PresentationApi.csproj": {
+    "D:\\YUNUSCO Running Project\\Rafid Code\\YunuscoSolarTv\\backend\\PresentationApi\\PresentationApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Admin\\OneDrive\\Documents\\Solar web Fahad vhi github\\YunuscoSolarTv\\backend\\PresentationApi\\PresentationApi.csproj",
+        "projectUniqueName": "D:\\YUNUSCO Running Project\\Rafid Code\\YunuscoSolarTv\\backend\\PresentationApi\\PresentationApi.csproj",
         "projectName": "PresentationApi",
-        "projectPath": "C:\\Users\\Admin\\OneDrive\\Documents\\Solar web Fahad vhi github\\YunuscoSolarTv\\backend\\PresentationApi\\PresentationApi.csproj",
-        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Admin\\OneDrive\\Documents\\Solar web Fahad vhi github\\YunuscoSolarTv\\backend\\PresentationApi\\obj\\",
+        "projectPath": "D:\\YUNUSCO Running Project\\Rafid Code\\YunuscoSolarTv\\backend\\PresentationApi\\PresentationApi.csproj",
+        "packagesPath": "C:\\Users\\saurab_a\\.nuget\\packages\\",
+        "outputPath": "D:\\YUNUSCO Running Project\\Rafid Code\\YunuscoSolarTv\\backend\\PresentationApi\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\saurab_a\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,7 +27,6 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {

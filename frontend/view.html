@@ -22,6 +22,7 @@
                 align-items: center;
                 justify-content: space-between;
                 padding: 0 2rem;
+                overflow: visible; /* Allow logo to extend beyond header */
             }
 
             /* Show only in fullscreen */
@@ -34,6 +35,8 @@
                 display: flex;
                 align-items: center;
                 flex: 1;
+                position: relative; /* For positioning logo extension */
+                height: 100%; /* Match header height */
             }
 
             #fs-logo {
@@ -42,10 +45,22 @@
                 max-height: 70px;
                 max-width: 120px;
                 object-fit: contain;
+                /* NEW: Expand logo 30% downward beyond header */
+                position: absolute;
+                top: 0;
+                left: 0;
+                height: 110% !important; /* 30% increase (100% + 30%) */
+                max-height: none !important; /* Override max-height */
+                width: auto;
+                max-width: 120px;
+                transform: translateY(0%); /* Keep at top of container */
+                z-index: 15; /* Ensure logo stays above header */
+                filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); /* Add shadow for depth */
             }
 
             .logo-placeholder {
-                width: 70px; height: 70px;
+                width: 70px; 
+                height: 70px;
                 background: linear-gradient(135deg, #3b82f6, #2563eb);
                 border-radius: 12px;
                 display: none;
@@ -54,6 +69,14 @@
                 font-weight: bold;
                 font-size: 2rem;
                 color: white;
+                /* NEW: Also expand placeholder 30% */
+                position: absolute;
+                top: 0;
+                left: 0;
+                height: 130% !important;
+                width: 70px;
+                border-radius: 12px 12px 0 0;
+                z-index: 15;
             }
 
             /* ── Center: company name (absolutely centered in header) ── */
@@ -133,7 +156,16 @@
             @media (min-width: 1920px) {
                 .fs-header { height: 100px; padding: 0 3rem; }
                 #fs-logo   { max-height: 85px; max-width: 150px; }
-                .logo-placeholder { width: 85px; height: 85px; font-size: 2.5rem; }
+                /* Update for larger screens */
+                #fs-logo {
+                    height: 130% !important;
+                    max-width: 150px;
+                }
+                .logo-placeholder { 
+                    width: 85px; 
+                    height: 130% !important; 
+                    font-size: 2.5rem; 
+                }
 
                 .slideshow-player:fullscreen        .slideshow-item,
                 .slideshow-player:-webkit-full-screen .slideshow-item,
@@ -146,7 +178,16 @@
             @media (max-width: 1024px) {
                 .fs-header { height: 70px; padding: 0 1.5rem; }
                 #fs-logo   { max-height: 50px; max-width: 90px; }
-                .logo-placeholder { width: 50px; height: 50px; font-size: 1.5rem; }
+                /* Update for tablet screens */
+                #fs-logo {
+                    height: 130% !important;
+                    max-width: 90px;
+                }
+                .logo-placeholder { 
+                    width: 50px; 
+                    height: 130% !important; 
+                    font-size: 1.5rem; 
+                }
                 .fs-header-right { min-width: 140px; }
 
                 .slideshow-player:fullscreen        .slideshow-item,
@@ -160,7 +201,16 @@
             @media (max-width: 768px) {
                 .fs-header { height: 60px; padding: 0 1rem; }
                 #fs-logo   { max-height: 40px; max-width: 70px; }
-                .logo-placeholder { width: 40px; height: 40px; font-size: 1.2rem; }
+                /* Update for mobile screens */
+                #fs-logo {
+                    height: 130% !important;
+                    max-width: 70px;
+                }
+                .logo-placeholder { 
+                    width: 40px; 
+                    height: 130% !important; 
+                    font-size: 1.2rem; 
+                }
                 .fs-company-name  { white-space: normal; font-size: clamp(0.9rem, 3.5vw, 1.2rem); }
                 .fs-header-right  { min-width: 110px; }
 
@@ -243,6 +293,10 @@
 
                     <div id="image-slide" class="slideshow-item">
                         <img id="slide-image" alt="Current slide" />
+                    </div>
+
+                    <div id="image-slide-next" class="slideshow-item">
+                        <img id="slide-image-next" alt="Next slide" />
                     </div>
                 </div>
 
