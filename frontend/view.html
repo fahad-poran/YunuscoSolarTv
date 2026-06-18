@@ -6,94 +6,99 @@
         <title>View Presentation</title>
         <link rel="stylesheet" href="css/style.css" />
         <style>
-            /* Fullscreen Header Bar Styles */
+            /* ── Fullscreen Header ── */
             .fs-header {
                 display: none;
                 position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
+                top: 0; left: 0; right: 0;
                 z-index: 10;
-                height: 64px;
-                background: linear-gradient(
-                    135deg,
-                    #0a1628 0%,
-                    #0d1f3c 50%,
-                    #0a1628 100%
-                );
+                height: 80px;
+                background: linear-gradient(135deg, #0a1628 0%, #0d1f3c 50%, #0a1628 100%);
                 border-bottom: 2px solid #1e3a5f;
+                box-shadow: 0 2px 16px rgba(0,0,0,.5);
+
+                /* Three-column layout: logo | company (center) | clock */
+                display: none;
                 align-items: center;
                 justify-content: space-between;
-                padding: 0 1.5rem;
-                box-shadow: 0 2px 16px rgba(0, 0, 0, 0.5);
+                padding: 0 2rem;
             }
 
-            .slideshow-player:fullscreen .fs-header,
+            /* Show only in fullscreen */
+            .slideshow-player:fullscreen        .fs-header,
             .slideshow-player:-webkit-full-screen .fs-header,
-            body.is-fullscreen .fs-header {
-                display: flex;
-            }
+            body.is-fullscreen                  .fs-header { display: flex; }
 
+            /* ── Left: logo ── */
             .fs-header-left {
                 display: flex;
                 align-items: center;
-                gap: 0.75rem;
+                flex: 1;
             }
 
             #fs-logo {
-                height: 40px;
+                height: auto;
                 width: auto;
+                max-height: 70px;
+                max-width: 120px;
                 object-fit: contain;
             }
 
             .logo-placeholder {
-                width: 40px;
-                height: 40px;
+                width: 70px; height: 70px;
                 background: linear-gradient(135deg, #3b82f6, #2563eb);
-                border-radius: 8px;
+                border-radius: 12px;
                 display: none;
                 align-items: center;
                 justify-content: center;
                 font-weight: bold;
-                font-size: 20px;
+                font-size: 2rem;
                 color: white;
             }
 
+            /* ── Center: company name (absolutely centered in header) ── */
             .fs-header-company {
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
                 display: flex;
                 flex-direction: column;
-                line-height: 1.5;
+                align-items: center;
+                line-height: 1.3;
+                white-space: nowrap;
             }
 
             .fs-company-name {
-                font-size: 1.15rem;
+                font-size: clamp(1.2rem, 4vw, 2.2rem);
                 font-weight: 700;
                 color: #e8edf4;
                 letter-spacing: 0.02em;
             }
 
             .fs-company-sub {
-                font-size: 0.72rem;
+                font-size: clamp(0.7rem, 2vw, 0.9rem);
                 color: #7ab3ef;
                 letter-spacing: 0.04em;
                 text-transform: uppercase;
             }
 
+            /* ── Right: clock ── */
             .fs-header-right {
                 display: flex;
                 flex-direction: column;
                 align-items: flex-end;
                 line-height: 1.2;
+                flex: 1;
             }
 
             .fs-clock-row {
                 display: flex;
                 align-items: baseline;
-                gap: 0.3rem;
+                gap: 0.5rem;
             }
 
             #fs-clock-time {
-                font-size: 1.5rem;
+                font-size: clamp(1.5rem, 5vw, 2.8rem);
                 font-weight: 700;
                 color: #e8edf4;
                 font-variant-numeric: tabular-nums;
@@ -101,29 +106,70 @@
             }
 
             #fs-clock-ampm {
-                font-size: 0.8rem;
+                font-size: clamp(0.8rem, 2.5vw, 1.2rem);
                 font-weight: 600;
                 color: #7ab3ef;
                 letter-spacing: 0.06em;
             }
 
             #fs-clock-date {
-                font-size: 0.72rem;
-                color: #7ab3ef;
-                letter-spacing: 0.03em;
+                font-size: clamp(0.85rem, 2vw, 1.05rem);
+                color: #e0ecff;
+                font-weight: 600;
+                letter-spacing: 0.04em;
+                white-space: nowrap;
+                text-shadow: 0 1px 4px rgba(0,0,0,0.5);
             }
 
-            /* Push slide content below header in fullscreen */
-            .slideshow-player:fullscreen .slideshow-item,
+            /* ── Slide content pushed below header in fullscreen ── */
+            .slideshow-player:fullscreen        .slideshow-item,
             .slideshow-player:-webkit-full-screen .slideshow-item,
-            body.is-fullscreen .slideshow-item {
-                top: 64px;
+            body.is-fullscreen                  .slideshow-item,
+            .slideshow-player:fullscreen        .viewer-overlay,
+            .slideshow-player:-webkit-full-screen .viewer-overlay,
+            body.is-fullscreen                  .viewer-overlay { top: 80px; }
+
+            /* ── Responsive ── */
+            @media (min-width: 1920px) {
+                .fs-header { height: 100px; padding: 0 3rem; }
+                #fs-logo   { max-height: 85px; max-width: 150px; }
+                .logo-placeholder { width: 85px; height: 85px; font-size: 2.5rem; }
+
+                .slideshow-player:fullscreen        .slideshow-item,
+                .slideshow-player:-webkit-full-screen .slideshow-item,
+                body.is-fullscreen                  .slideshow-item,
+                .slideshow-player:fullscreen        .viewer-overlay,
+                .slideshow-player:-webkit-full-screen .viewer-overlay,
+                body.is-fullscreen                  .viewer-overlay { top: 100px; }
             }
 
-            .slideshow-player:fullscreen .viewer-overlay,
-            .slideshow-player:-webkit-full-screen .viewer-overlay,
-            body.is-fullscreen .viewer-overlay {
-                top: 64px;
+            @media (max-width: 1024px) {
+                .fs-header { height: 70px; padding: 0 1.5rem; }
+                #fs-logo   { max-height: 50px; max-width: 90px; }
+                .logo-placeholder { width: 50px; height: 50px; font-size: 1.5rem; }
+                .fs-header-right { min-width: 140px; }
+
+                .slideshow-player:fullscreen        .slideshow-item,
+                .slideshow-player:-webkit-full-screen .slideshow-item,
+                body.is-fullscreen                  .slideshow-item,
+                .slideshow-player:fullscreen        .viewer-overlay,
+                .slideshow-player:-webkit-full-screen .viewer-overlay,
+                body.is-fullscreen                  .viewer-overlay { top: 70px; }
+            }
+
+            @media (max-width: 768px) {
+                .fs-header { height: 60px; padding: 0 1rem; }
+                #fs-logo   { max-height: 40px; max-width: 70px; }
+                .logo-placeholder { width: 40px; height: 40px; font-size: 1.2rem; }
+                .fs-company-name  { white-space: normal; font-size: clamp(0.9rem, 3.5vw, 1.2rem); }
+                .fs-header-right  { min-width: 110px; }
+
+                .slideshow-player:fullscreen        .slideshow-item,
+                .slideshow-player:-webkit-full-screen .slideshow-item,
+                body.is-fullscreen                  .slideshow-item,
+                .slideshow-player:fullscreen        .viewer-overlay,
+                .slideshow-player:-webkit-full-screen .viewer-overlay,
+                body.is-fullscreen                  .viewer-overlay { top: 60px; }
             }
         </style>
     </head>
@@ -141,68 +187,43 @@
                 <h2 class="view-chrome">View Presentation</h2>
                 <p class="view-chrome">
                     Playback cycle: <strong>SolScada dashboard</strong> for 30
-                    seconds, then each PowerPoint slide for 5 seconds, then
-                    repeats.
+                    seconds, then each PowerPoint slide for 30 seconds, then repeats.
                 </p>
 
                 <div class="viewer-toolbar view-chrome">
                     <div class="viewer-controls">
-                        <button
-                            id="prev-slide"
-                            type="button"
-                            aria-label="Previous item"
-                        >
-                            &#9664;
-                        </button>
+                        <button id="prev-slide" type="button" aria-label="Previous item">&#9664;</button>
                         <span id="slide-counter" class="slide-counter"></span>
-                        <button
-                            id="next-slide"
-                            type="button"
-                            aria-label="Next item"
-                        >
-                            &#9654;
-                        </button>
+                        <button id="next-slide" type="button" aria-label="Next item">&#9654;</button>
                     </div>
-
                     <div class="viewer-actions">
-                        <button
-                            id="autoplay-toggle"
-                            type="button"
-                            class="secondary-button active"
-                        >
-                            Pause
-                        </button>
-                        <button
-                            id="fullscreen-btn"
-                            type="button"
-                            class="secondary-button"
-                        >
-                            Fullscreen
-                        </button>
+                        <button id="autoplay-toggle" type="button" class="secondary-button active">Pause</button>
+                        <button id="fullscreen-btn"  type="button" class="secondary-button">Fullscreen</button>
                     </div>
                 </div>
 
                 <div id="slideshow-player" class="slideshow-player">
-                    <!-- Fullscreen Header Bar -->
+
+                    <!-- Fullscreen Header -->
                     <div id="fs-header" class="fs-header">
+
+                        <!-- Left: logo -->
                         <div class="fs-header-left">
                             <img
                                 id="fs-logo"
                                 src="./images/logo.png"
                                 alt="Yunusco Logo"
-                                onerror="
-                                    this.style.display = 'none';
-                                    this.nextElementSibling.style.display =
-                                        'flex';
-                                "
+                                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                             />
                             <div class="logo-placeholder">Y</div>
-                            <div class="fs-header-company">
-                                <span class="fs-company-name"
-                                    >Yunusco BD Ltd.</span
-                                >
-                            </div>
                         </div>
+
+                        <!-- Center: company name (absolutely centered) -->
+                        <div class="fs-header-company">
+                            <span class="fs-company-name">Yunusco BD Ltd.</span>
+                        </div>
+
+                        <!-- Right: clock -->
                         <div class="fs-header-right">
                             <div class="fs-clock-row">
                                 <span id="fs-clock-time">12:00:00</span>
@@ -210,18 +231,14 @@
                             </div>
                             <div id="fs-clock-date">Loading...</div>
                         </div>
-                    </div>
 
-                    <div id="viewer-overlay" class="viewer-overlay">
-                        Loading presentation...
                     </div>
+                    <!-- /Fullscreen Header -->
+
+                    <div id="viewer-overlay" class="viewer-overlay">Loading presentation...</div>
 
                     <div id="website-slide" class="slideshow-item">
-                        <iframe
-                            id="website-frame"
-                            title="SolScada Dashboard"
-                            allowfullscreen
-                        ></iframe>
+                        <iframe id="website-frame" title="SolScada Dashboard" allowfullscreen></iframe>
                     </div>
 
                     <div id="image-slide" class="slideshow-item">
@@ -229,29 +246,16 @@
                     </div>
                 </div>
 
-                <div
-                    id="status"
-                    class="status view-chrome"
-                    aria-live="polite"
-                ></div>
-                <div id="meta" class="meta view-chrome"></div>
-                <details
-                    id="diagnostics-panel"
-                    class="diagnostics-panel view-chrome"
-                    hidden
-                >
+                <div id="status" class="status view-chrome" aria-live="polite"></div>
+                <div id="meta"   class="meta   view-chrome"></div>
+                <details id="diagnostics-panel" class="diagnostics-panel view-chrome" hidden>
                     <summary>Slide export error details</summary>
                     <pre id="diagnostics-output"></pre>
                 </details>
             </section>
         </div>
 
-        <button
-            id="exit-fullscreen-btn"
-            type="button"
-            class="exit-fullscreen-btn"
-            hidden
-        >
+        <button id="exit-fullscreen-btn" type="button" class="exit-fullscreen-btn" hidden>
             Exit fullscreen
         </button>
 
@@ -259,80 +263,47 @@
         <script src="js/api.js"></script>
         <script src="js/view.js"></script>
         <script>
-            // Fullscreen header clock (Bangladesh time)
-            function updateFsClock() {
-                var bd = new Date(
-                    new Date().toLocaleString("en-US", {
-                        timeZone: "Asia/Dhaka",
-                    }),
-                );
-                var raw = bd.getHours();
-                var ampm = raw >= 12 ? "PM" : "AM";
-                var h12 = raw % 12 || 12;
-                var pad = function (n) {
-                    return String(n).padStart(2, "0");
-                };
+            // ── Fullscreen header clock (Bangladesh time) ──
+            (function () {
                 var timeEl = document.getElementById("fs-clock-time");
                 var ampmEl = document.getElementById("fs-clock-ampm");
                 var dateEl = document.getElementById("fs-clock-date");
-                if (timeEl)
-                    timeEl.textContent =
-                        pad(h12) +
-                        ":" +
-                        pad(bd.getMinutes()) +
-                        ":" +
-                        pad(bd.getSeconds());
-                if (ampmEl) ampmEl.textContent = ampm;
-                var days = [
-                    "Sunday",
-                    "Monday",
-                    "Tuesday",
-                    "Wednesday",
-                    "Thursday",
-                    "Friday",
-                    "Saturday",
-                ];
-                var months = [
-                    "Jan",
-                    "Feb",
-                    "Mar",
-                    "Apr",
-                    "May",
-                    "Jun",
-                    "Jul",
-                    "Aug",
-                    "Sep",
-                    "Oct",
-                    "Nov",
-                    "Dec",
-                ];
-                if (dateEl)
-                    dateEl.textContent =
-                        days[bd.getDay()] +
-                        ", " +
-                        bd.getDate() +
-                        " " +
-                        months[bd.getMonth()] +
-                        " " +
-                        bd.getFullYear() +
-                        " · BD";
-            }
-            setInterval(updateFsClock, 1000);
-            updateFsClock();
 
-            // Handle logo fallback
-            var logo = document.getElementById("fs-logo");
-            var placeholder = logo ? logo.nextElementSibling : null;
-            if (logo && logo.complete && logo.naturalWidth === 0) {
-                logo.style.display = "none";
-                if (placeholder) placeholder.style.display = "flex";
-            }
-            if (logo) {
-                logo.onerror = function () {
-                    this.style.display = "none";
+                var DAYS   = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+                var MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+                function pad(n) { return String(n).padStart(2, "0"); }
+
+                function updateClock() {
+                    var bd   = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
+                    var raw  = bd.getHours();
+                    var ampm = raw >= 12 ? "PM" : "AM";
+                    var h12  = raw % 12 || 12;
+
+                    if (timeEl) timeEl.textContent = pad(h12) + ":" + pad(bd.getMinutes()) + ":" + pad(bd.getSeconds());
+                    if (ampmEl) ampmEl.textContent = ampm;
+                    if (dateEl) dateEl.textContent = DAYS[bd.getDay()] + ", " + bd.getDate() + " " + MONTHS[bd.getMonth()] + " " + bd.getFullYear() + " · BD";
+                }
+
+                setInterval(updateClock, 1000);
+                updateClock();
+            })();
+
+            // ── Logo fallback ──
+            (function () {
+                var logo        = document.getElementById("fs-logo");
+                var placeholder = logo && logo.nextElementSibling;
+
+                function showPlaceholder() {
+                    if (logo)        logo.style.display        = "none";
                     if (placeholder) placeholder.style.display = "flex";
-                };
-            }
+                }
+
+                if (logo) {
+                    if (logo.complete && logo.naturalWidth === 0) showPlaceholder();
+                    logo.onerror = showPlaceholder;
+                }
+            })();
         </script>
     </body>
 </html>

@@ -5,6 +5,6 @@ window.APP_CONFIG = {
   apiBaseUrl,
   websiteUrl: "https://solscada.tech",
   websiteDisplayMs: 30000,
-  autoplayIntervalMs: 5000,
+  autoplayIntervalMs: 30000,
   autoFullscreen: true
 };

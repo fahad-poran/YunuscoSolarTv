@@ -1,11 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "UTKMXZ8ld8o=",
+  "dgSpecHash": "7BAqh40Bess=",
   "success": true,
-  "projectFilePath": "D:\\YunuscoSolarTV\\backend\\PresentationApi\\PresentationApi.csproj",
+  "projectFilePath": "C:\\Users\\Admin\\OneDrive\\Documents\\Solar web Fahad vhi github\\YunuscoSolarTv\\backend\\PresentationApi\\PresentationApi.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\saurab_a\\.nuget\\packages\\microsoft.aspnetcore.openapi\\10.0.8\\microsoft.aspnetcore.openapi.10.0.8.nupkg.sha512",
-    "C:\\Users\\saurab_a\\.nuget\\packages\\microsoft.openapi\\2.0.0\\microsoft.openapi.2.0.0.nupkg.sha512"
+    "C:\\Users\\Admin\\.nuget\\packages\\microsoft.aspnetcore.openapi\\10.0.8\\microsoft.aspnetcore.openapi.10.0.8.nupkg.sha512",
+    "C:\\Users\\Admin\\.nuget\\packages\\microsoft.openapi\\2.0.0\\microsoft.openapi.2.0.0.nupkg.sha512"
   ],
   "logs": []
 }
